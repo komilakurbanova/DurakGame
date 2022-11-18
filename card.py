@@ -43,6 +43,9 @@ class Card(object):
         if self.suit != other.suit:
             return False
         return self.value > other.value
+    
+    def __ne__(self, other):
+        return other.value != self.value or other.suit != self.suit
 
 
 
