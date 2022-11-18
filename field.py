@@ -15,6 +15,7 @@ class Field(object):
         self.__deck = []
         self.trump = None
         self.__table = []
+        self.start_player = None
 
     def initialize_game(self):
         deck = generate_deck()
@@ -25,6 +26,17 @@ class Field(object):
         self.__players[0].set_cards(deck[-6:])
         self.__players[1].set_cards(deck[-12:-6])
         del deck[-12:]
+
+        min_trump = 15
+        for c in self.__players[0].cards():
+            if c.suit == self.trump and c.value < min_trump:
+                min_trump = c.value
+                self.start_player = self.__players[0]
+        for c in self.__players[1].cards():
+            if c.suit == self.trump and c.value < min_trump:
+                min_trump = c.value
+                self.start_player = self.__players[1]
+
         deck.insert(0, self.trump)
         self.__deck = deck
         return self
@@ -34,7 +46,5 @@ def print_cards(x: List[card.Card]):  # это просто для тестир�
     for c in x:
         print(c, end=' ')
     print()
-
-
 
 
