@@ -1,3 +1,4 @@
+import enum
 from enum import Enum
 
 
@@ -7,6 +8,17 @@ class Card(object):
         CLUBS = 'C'  # ♧
         DIAMONDS = 'D'  # ♢
         HEARTS = 'H'  # ♡
+
+    #class Value(enum.IntEnum):
+    #    SIX = 6
+    #    SEVEN = 7
+    #    EIGHT = 8
+    #    NINE = 9
+    #    TEN = 10
+    #    J = 11
+    #    Q = 12
+    #    K = 13
+    #    A = 14
 
     def __init__(self,  *args):
         try:
@@ -43,17 +55,9 @@ class Card(object):
         if self.suit != other.suit:
             return False
         return self.value > other.value
-    
+
+    def __eq__(self, other):
+        return other.value == self.value and other.suit == self.suit
+
     def __ne__(self, other):
-        return other.value != self.value or other.suit != self.suit
-
-
-
-
-
-
-
-
-
-
-
+        return not self == other
