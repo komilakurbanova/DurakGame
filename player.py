@@ -10,6 +10,9 @@ class Player(object):
         self.name = name
         self.__cards = cards
 
+    def set_cards(self, cards: List[card.Card]):
+        self.__cards = cards
+
     def cards_quantity(self):
         return len(self.__cards)
 
