@@ -5,8 +5,9 @@ CARDS_FOR_PLAYER = 6
 
 
 class Player(object):
-    def __init__(self, puid: str, cards: List[card.Card]):
+    def __init__(self, puid: str, name: str, cards: List[card.Card]):
         self._puid = puid
+        self._name = name
         self._cards = cards
 
     def cards_quantity(self):
