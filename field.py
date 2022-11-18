@@ -9,6 +9,13 @@ def generate_deck():
     return sample_deck
 
 
+def cards_to_list(cards: List[card.Card]):
+    ret = ""
+    for c in cards:
+        ret += ("{0}-{1}".format(c.value_str(), c.suit.name)) + ' '
+    return ret
+
+
 class Field(object):
     def __init__(self, p1: player.Player, p2: player.Player):
         self.__players = [p1, p2]
@@ -41,10 +48,27 @@ class Field(object):
         self.__deck = deck
         return self
 
+    def field_view_for_player(self, puid: str, turn: str):  # turn - чей ход
+        if self.__players[0].puid() == puid:
+            query_player = self.__players[0]
+            enemy_player = self.__players[1]
+        elif self.__players[1].puid() == puid:
+            query_player = self.__players[1]
+            enemy_player = self.__players[0]
+        else:
+            raise ValueError('Wrong player-ID')
+        message_text = "Игроки:\n" \
+                       "{0}  {1}\n" \
+                       "{2}  {3}\n" \
+                       "\nКолода {4}x ? \n" \
+                       "\nСтол: {5}\n" \
+                       "Ходит {6}".format(enemy_player.name, '?' * enemy_player.cards_quantity(), query_player.name,
+                                          cards_to_list(query_player.cards()), len(self.__deck) - 1,
+                                          cards_to_list(self.__table), turn)
+        return message_text
+
 
 def print_cards(x: List[card.Card]):  # это просто для тестирования удобная вещь
     for c in x:
         print(c, end=' ')
     print()
-
-
