@@ -21,7 +21,7 @@ class Field(object):
         self.__players = [p1, p2]
         self.__deck = []
         self.trump = None
-        self.__table = []
+        self.table = []
         self.start_player = None
 
     def initialize_game(self):
@@ -64,7 +64,7 @@ class Field(object):
                        "\nСтол: {5}\n" \
                        "Ходит {6}".format(enemy_player.name, '?' * enemy_player.cards_quantity(), query_player.name,
                                           cards_to_list(query_player.cards()), len(self.__deck) - 1,
-                                          cards_to_list(self.__table), turn)
+                                          cards_to_list(self.table), turn)
         return message_text
 
 
