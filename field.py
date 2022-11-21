@@ -10,9 +10,10 @@ def generate_deck():
 
 
 def cards_to_list(cards: List[card.Card]):
+    suit_to_emoji = {'SPADES': '♠', 'CLUBS': '♣', 'DIAMONDS': '♦', 'HEARTS': '♥'}
     ret = ""
     for c in cards:
-        ret += ("{0}-{1}".format(c.value_str(), c.suit.name)) + ' '
+        ret += ("{0}{1}".format(c.value_str(), suit_to_emoji[c.suit.name])) + ' '
     return ret
 
 
@@ -26,9 +27,9 @@ class Field(object):
 
     def initialize_game(self):
         deck = generate_deck()
-        random.seed(42)  # надо бы улучшить рандом, но пока и так сойдет
+        random.seed()  # надо бы улучшить рандом, но пока и так сойдет
         random.shuffle(deck)
-        print_cards(deck)
+        # print_cards(deck)
         self.trump = deck.pop().suit
         self.__players[0].set_cards(deck[-6:])
         self.__players[1].set_cards(deck[-12:-6])
@@ -48,23 +49,34 @@ class Field(object):
         self.__deck = deck
         return self
 
-    def field_view_for_player(self, puid: str, turn: str):  # turn - чей ход
-        if self.__players[0].puid() == puid:
+    def field_view_for_player(self, me: player.Player, turn: player.Player):  # turn - чей ход, имя
+        if self.__players[0].puid() == me.puid():
             query_player = self.__players[0]
             enemy_player = self.__players[1]
-        elif self.__players[1].puid() == puid:
+        elif self.__players[1].puid() == me.puid():
             query_player = self.__players[1]
             enemy_player = self.__players[0]
         else:
             raise ValueError('Wrong player-ID')
-        message_text = "Игроки:\n" \
-                       "{0}  {1}\n" \
-                       "{2}  {3}\n" \
-                       "\nКолода {4}x ? \n" \
-                       "\nСтол: {5}\n" \
-                       "Ходит {6}".format(enemy_player.name, '?' * enemy_player.cards_quantity(), query_player.name,
-                                          cards_to_list(query_player.cards()), len(self.__deck) - 1,
-                                          cards_to_list(self.table), turn)
+        if me.puid() != turn.puid():
+            message_text = "Игроки:\n" \
+                           "{0}  {1}\n" \
+                           "{2}  {3}\n" \
+                           "\nКолода 🃏x{4} \n" \
+                           "\nСтол: {5}\n\n" \
+                           "Ходит {6}".format(enemy_player.name, '🃏' * enemy_player.cards_quantity(),
+                                              query_player.name,
+                                              cards_to_list(query_player.cards()), len(self.__deck),
+                                              cards_to_list(self.table), turn.name)
+        else:
+            message_text = "Игроки:\n" \
+                           "{0}  {1}\n" \
+                           "{2}  {3}\n" \
+                           "\nКолода ?x{4} \n" \
+                           "\nСтол: {5}\n\n" \
+                           "Ваш ход!".format(enemy_player.name, '?' * enemy_player.cards_quantity(), query_player.name,
+                                             cards_to_list(query_player.cards()), len(self.__deck),
+                                             cards_to_list(self.table))
         return message_text
 
 
@@ -72,3 +84,10 @@ def print_cards(x: List[card.Card]):  # это просто для тестир�
     for c in x:
         print(c, end=' ')
     print()
+
+
+#p1 = player.Player('1', 'first', [])
+#p2 = player.Player('2', 'second', [])
+#f = Field(p1, p2)
+#f.initialize_game()
+#print(f.field_view_for_player(p2, p1))
