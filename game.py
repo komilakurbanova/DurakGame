@@ -9,14 +9,17 @@ class Game(object):
         # self.players:
         self.active_player: player.puid() = None
         self.defence_player: player.puid() = None
+        self.field: field.Field() = None
 
 
-    def move(p: player.Player):
+    def move_message(p: player.Player): # чтобы сообщить игроку что делать
+                                        # это и на поле отображено, но, возможно,
+                                        # такая длубликация оправдана
         message = ''
         if p.puid == Game.active_player:
             message = "Place your card!"
         elif p.puid == Game.defence_player:
-            message = "The opponent is making a move"
+            message = "The opponent is making a move, get ready to defend"
         return message
 
 
@@ -26,3 +29,34 @@ class Game(object):
 
     def is_active(self, id: player.puid):
         return self.active_player == id
+
+
+    def action_possible_active(self, table: field.Field, c: card.Card):  # нам приходит ход человека и мы
+                                                    # смотрим, можно ли его совершить
+        verdict = False
+        if table.__table.size() % 2 == 0:
+            # совпадает ли карта по номиналу с теми на столе
+            verdict = True
+            for item in table.deck:
+                if c.value != item.value:
+                    verdict = False
+                    break
+        return verdict
+
+
+    def action_possible_defence(self, table: field.Field, c: card.Card):
+        verdict = False
+        if table.__table.size() % 2 == 1:
+            # совпадает ли карта мастью и больше ли она
+            item = table.__table[-1]
+            verdict = c.__gt__(item)
+        return verdict
+
+
+    def normal_move(c: card.Card): # игрок решает положить карту
+
+    def take_cards(self, c: card.Card): #игрок забирает карты - defence only
+
+
+
+    def finish_take(self, c: card.Card): #бито - active only
