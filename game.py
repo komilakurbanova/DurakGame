@@ -5,62 +5,57 @@ import field
 
 class Game(object):
     def __init__(self, p1: player.Player, p2: player.Player):
-        # self.field: Field = Field(p1, p2)
-        # self.players:
-        self.active_player: player.puid() = None
-        self.defence_player: player.puid() = None
-        self.field: field.Field() = None
-        self.table: field.__table() = []
+        self.field = field.Field(p1, p2)
+        self.field.initialize_game()
+        self.active_player = self.field.start_player
+        if p1.puid() != self.active_player:
+            self.defence_player = p1
+        else:
+            self.defence_player = p2
 
-
-    def move_message(p: player.Player): # чтобы сообщить игроку что делать
+    def move_message(self, p: player.Player):  # чтобы сообщить игроку что делать
                                         # это и на поле отображено, но, возможно,
                                         # такая длубликация оправдана
         message = ''
-        if p.puid == Game.active_player:
+        if p.puid == self.active_player:
             message = "Place your card!"
-        elif p.puid == Game.defence_player:
+        elif p.puid == self.defence_player:
             message = "The opponent is making a move, get ready to defend"
         return message
 
+    def is_defending(self, puid: str):
+        return self.defence_player.puid() == puid
 
-    def is_defending(self, id: player.puid):
-        return self.defendce_player == id
+    def is_active(self, puid: str):
+        return self.active_player.piid() == puid
 
-
-    def is_active(self, id: player.puid):
-        return self.active_player == id
-
-
-    def action_possible_active(self, table: field.Field, c: card.Card):  # нам приходит ход человека и мы
-                                                    # смотрим, можно ли его совершить
+    def action_possible_active(self, c: card.Card):  # нам приходит ход человека и мы
+                                                     # смотрим, можно ли его совершить
         verdict = False
-        if table.__table.size() % 2 == 0:
+        if self.field.table.size() % 2 == 0:
             # совпадает ли карта по номиналу с теми на столе
             verdict = True
-            for item in table.deck:
+            deck = self.field.deck()
+            for item in deck:
                 if c.value != item.value:
                     verdict = False
                     break
         return verdict
 
-
-    def action_possible_defence(self, table: field.Field, c: card.Card):
+    def action_possible_defence(self, c: card.Card):
         verdict = False
-        if table.__table.size() % 2 == 1:
+        table = self.field.table
+        if len(table) % 2 == 1:
             # совпадает ли карта мастью и больше ли она
-            item = table.__table[-1]
-            verdict = c.__gt__(item)
+            item = table[-1]
+            verdict = c > item
         return verdict
 
+    def normal_move(self, c: card.Card):  # игрок решает положить карту
+        pass
 
-    def normal_move(c: card.Card): # игрок решает положить карту
+    def take_table(self, p: player.Player):  # игрок забирает карты - defence only
+        p.take_cards_from_field(self.field.table)
 
-
-
-    def take_table(self, id: player.__puid): #игрок забирает карты - defence only
-        id.take_cards_from_field(Game.table)
-
-
-    def finish_take(self, id: player.__puid): #бито - active only
-
+    def finish_take(self, p: player.Player):  # бито - active only
+        pass
