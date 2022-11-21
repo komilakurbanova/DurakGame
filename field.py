@@ -25,6 +25,12 @@ class Field(object):
         self.table = []
         self.start_player = None
 
+    def deck(self):
+        return self.__deck
+
+    def players(self):
+        return self.__players
+
     def initialize_game(self):
         deck = generate_deck()
         random.seed()  # надо бы улучшить рандом, но пока и так сойдет
