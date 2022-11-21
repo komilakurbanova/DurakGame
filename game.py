@@ -5,11 +5,12 @@ import field
 
 class Game(object):
     def __init__(self, p1: player.Player, p2: player.Player):
-        self.field: Field = Field(p1, p2)
+        # self.field: Field = Field(p1, p2)
         # self.players:
         self.active_player: player.puid() = None
         self.defence_player: player.puid() = None
         self.field: field.Field() = None
+        self.table: field.__table() = []
 
 
     def move_message(p: player.Player): # чтобы сообщить игроку что делать
@@ -55,8 +56,11 @@ class Game(object):
 
     def normal_move(c: card.Card): # игрок решает положить карту
 
-    def take_cards(self, c: card.Card): #игрок забирает карты - defence only
 
 
+    def take_table(self, id: player.__puid): #игрок забирает карты - defence only
+        id.take_cards_from_field(Game.table)
 
-    def finish_take(self, c: card.Card): #бито - active only
+
+    def finish_take(self, id: player.__puid): #бито - active only
+
