@@ -55,7 +55,7 @@ class Field(object):
         self.__deck = deck
         return self
 
-    def field_view_for_player(self, me: player.Player, turn: player.Player):  # turn - чей ход, имя
+    def field_view_for_player(self, me: player.Player, turn: player.Player):  # turn - чей ход, me - кто спрашивает
         if self.__players[0].puid() == me.puid():
             query_player = self.__players[0]
             enemy_player = self.__players[1]
