@@ -14,8 +14,8 @@ class Game(object):
             self.defence_player = p2
 
     def move_message(self, p: player.Player):  # чтобы сообщить игроку что делать
-                                        # это и на поле отображено, но, возможно,
-                                        # такая длубликация оправдана
+        # это и на поле отображено, но, возможно,
+        # такая длубликация оправдана
         message = ''
         if p.puid == self.active_player:
             message = "Place your card!"
@@ -35,16 +35,13 @@ class Game(object):
     # проверить, что игрок вообще имеет право делать ход
 
     def action_possible_attack(self, c: card.Card):  # нам приходит ход человека и мы
-                                                     # смотрим, можно ли его совершить
-        if not self.field.table.keys():
+        # смотрим, можно ли его совершить
+        # совпадает ли карта по номиналу с теми, что на столе
+        cur_table = self.field.table.keys()
+        cur_table.append(self.field.table.values())
+        set_table_vals = {x.value for x in cur_table}
+        if c.value in set_table_vals:
             return True
-        if self.field.table.size() % 2 == 0:
-            # совпадает ли карта по номиналу с теми, что на столе
-            cur_table = self.field.table.keys()
-            cur_table.append(self.field.table.values())
-            set_table_vals = {x.value for x in cur_table}
-            if c.value in set_table_vals:
-                return True
         return False
 
     def action_possible_defence(self, on_table_card: card.Card, c: card.Card):
@@ -87,9 +84,11 @@ class Game(object):
         if not self.is_defending(p.puid()):
             raise ValueError('This player cannot take cards')
         p.take_cards_from_field(self.field.table)
+        self.field.table = {}
 
     def finish_take(self, p: player.Player):  # бито - attack only
         # не пон, а что тут ? ? ?
+        self.field.table = {}
         pass
 
     def player_attack_turn(self):  # а должно ли это быть методом класса?
