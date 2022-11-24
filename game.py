@@ -10,7 +10,9 @@ class Game(object):
         self.active_player = self.field.start_player
         if p1.puid() != self.active_player:
             self.defence_player = p1
+            self.attack_player = p2
         else:
+            self.attack_player = p1
             self.defence_player = p2
 
     def move_message(self, p: player.Player):  # чтобы сообщить игроку что делать
@@ -27,7 +29,7 @@ class Game(object):
         return self.defence_player.puid() == puid
 
     def is_attacking(self, puid: str):
-        return self.defence_player.puid() != puid
+        return self.attack_player.puid() == puid
 
     def is_active(self, puid: str):  # его ход ?
         return self.active_player.piid() == puid
@@ -84,19 +86,24 @@ class Game(object):
         if not self.is_defending(p.puid()):
             raise ValueError('This player cannot take cards')
         p.take_cards_from_field(self.field.table)
+        
+        self.attack_player, self.defence_player = self.defence_player, self.attack_player
+
+        if self.active_player == self.field.players()[0]:
+            self.active_player = self.field.players()[1]
+        else:
+            self.active_player = self.field.players()[0]
         self.field.table = {}
 
-<<<<<<< HEAD
-    def finish_take(self, p1: player.Player, p2: player.Player):  # бито - attack only, p - тот, кто бито написал
-        if self.defence_player.puid() == p1.puid():
-            self.defence_player = p1.puid()
-        else:
-            self.defence_player = p2.puid()
-
-=======
-    def finish_take(self, p: player.Player):  # бито - attack only
+    def finish_take(self, p: player.Player):  # бито - attack only, p - тот, кто бито написал
         # не пон, а что тут ? ? ?
->>>>>>> 41b0335875a2081e9f12a83fa2738be983f4b125
+        self.attack_player, self.defence_player = self.defence_player, self.attack_player
+
+        if self.active_player == self.field.players()[0]:
+            self.active_player = self.field.players()[1]
+        else:
+            self.active_player = self.field.players()[0]
+
         self.field.table = {}
         pass
 
