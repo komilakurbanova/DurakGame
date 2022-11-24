@@ -8,17 +8,7 @@ class Card(object):
         CLUBS = 'C'  # ♧
         DIAMONDS = 'D'  # ♢
         HEARTS = 'H'  # ♡
-
-    #class Value(enum.IntEnum):
-    #    SIX = 6
-    #    SEVEN = 7
-    #    EIGHT = 8
-    #    NINE = 9
-    #    TEN = 10
-    #    J = 11
-    #    Q = 12
-    #    K = 13
-    #    A = 14
+        NONEXIST = 'N'
 
     def __init__(self,  *args):
         try:
@@ -61,3 +51,14 @@ class Card(object):
 
     def __ne__(self, other):
         return not self == other
+
+    def __hash__(self):
+        return hash((self.value, self.suit))
+
+
+NONECARD = Card(6, 'N')
+
+
+
+
+
