@@ -1,16 +1,17 @@
 import card
 import player
-from typing import List
+from typing import List, Dict
 import random
+
+suit_to_emoji = {'SPADES': '♠', 'CLUBS': '♣', 'DIAMONDS': '♦', 'HEARTS': '♥', 'NONEXIST': ''}
 
 
 def generate_deck():
-    sample_deck = [card.Card(val, suit) for val in range(6, 15) for suit in card.Card.Suit]
+    sample_deck = [card.Card(val, suit) for val in range(6, 15) for suit in ['S', 'C', 'D', 'H']]
     return sample_deck
 
 
-def cards_to_list(cards: List[card.Card]):
-    suit_to_emoji = {'SPADES': '♠', 'CLUBS': '♣', 'DIAMONDS': '♦', 'HEARTS': '♥'}
+def cards_to_str(cards: List[card.Card]):
     ret = ""
     for c in cards:
         ret += ("{0}{1}".format(c.value_str(), suit_to_emoji[c.suit.name])) + ' '
@@ -22,7 +23,7 @@ class Field(object):
         self.__players = [p1, p2]
         self.__deck = []
         self.trump = None
-        self.table = {}
+        self.table = dict()
         self.start_player = None
 
     def deck(self):
@@ -33,7 +34,7 @@ class Field(object):
 
     def initialize_game(self):
         deck = generate_deck()
-        random.seed()  # надо бы улучшить рандом, но пока и так сойдет
+        random.seed(42)  # надо бы улучшить рандом, но пока и так сойдет
         random.shuffle(deck)
         # print_cards(deck)
         self.trump = deck.pop().suit
@@ -65,28 +66,37 @@ class Field(object):
         else:
             raise ValueError('Wrong player-ID')
 
-        # поменять вывод под стол-словарь !!!!!!!!!!!
+        table_to_print = ""
+
+        for e in self.table:
+            att_c = e
+            def_c = self.table[e]
+            if def_c != card.NONECARD:
+                table_to_print += cards_to_str([att_c]) + '|' + cards_to_str([def_c]) + '  '
+            else:
+                table_to_print += cards_to_str([att_c]) + '  '
 
         if me.puid() != turn.puid():
             message_text = "Игроки:\n" \
                            "{0}  {1}\n" \
                            "{2}  {3}\n" \
+                           "\nКозырь {7}"\
                            "\nКолода 🃏x{4} \n" \
                            "\nСтол: {5}\n\n" \
                            "Ходит {6}".format(enemy_player.name, '🃏' * enemy_player.cards_quantity(),
                                               query_player.name,
-                                              cards_to_list(query_player.cards()), len(self.__deck),
-                                              cards_to_list(self.table), turn.name)
+                                              cards_to_str(query_player.cards()), len(self.__deck),
+                                              table_to_print, turn.name, suit_to_emoji[self.trump.name])
         else:
-
             message_text = "Игроки:\n" \
                            "{0}  {1}\n" \
                            "{2}  {3}\n" \
-                           "\nКолода ?x{4} \n" \
+                           "\nКозырь {7}" \
+                           "\nКолода 🃏x{4} \n" \
                            "\nСтол: {5}\n\n" \
-                           "Ваш ход!".format(enemy_player.name, '?' * enemy_player.cards_quantity(), query_player.name,
-                                             cards_to_list(query_player.cards()), len(self.__deck),
-                                             cards_to_list(self.table))
+                           "Ваш ход!".format(enemy_player.name, '🃏' * enemy_player.cards_quantity(), query_player.name,
+                                             cards_to_str(query_player.cards()), len(self.__deck),
+                                             table_to_print, turn.name, suit_to_emoji[self.trump.name])
         return message_text
 
 
@@ -100,4 +110,4 @@ def print_cards(x: List[card.Card]):  # это просто для тестир�
 #p2 = player.Player('2', 'second', [])
 #f = Field(p1, p2)
 #f.initialize_game()
-#print(f.field_view_for_player(p2, p1))
+#print(f.field_view_for_player(p2, p2))
