@@ -22,7 +22,7 @@ class Field(object):
         self.__players = [p1, p2]
         self.__deck = []
         self.trump = None
-        self.table = []
+        self.table = {}
         self.start_player = None
 
     def deck(self):
@@ -64,6 +64,9 @@ class Field(object):
             enemy_player = self.__players[0]
         else:
             raise ValueError('Wrong player-ID')
+
+        # поменять вывод под стол-словарь !!!!!!!!!!!
+
         if me.puid() != turn.puid():
             message_text = "Игроки:\n" \
                            "{0}  {1}\n" \
@@ -75,6 +78,7 @@ class Field(object):
                                               cards_to_list(query_player.cards()), len(self.__deck),
                                               cards_to_list(self.table), turn.name)
         else:
+
             message_text = "Игроки:\n" \
                            "{0}  {1}\n" \
                            "{2}  {3}\n" \
