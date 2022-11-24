@@ -86,12 +86,17 @@ class Game(object):
         p.take_cards_from_field(self.field.table)
         self.field.table = {}
 
+<<<<<<< HEAD
     def finish_take(self, p1: player.Player, p2: player.Player):  # бито - attack only, p - тот, кто бито написал
         if self.defence_player.puid() == p1.puid():
             self.defence_player = p1.puid()
         else:
             self.defence_player = p2.puid()
 
+=======
+    def finish_take(self, p: player.Player):  # бито - attack only
+        # не пон, а что тут ? ? ?
+>>>>>>> 41b0335875a2081e9f12a83fa2738be983f4b125
         self.field.table = {}
         pass
 
