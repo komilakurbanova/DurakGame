@@ -10,10 +10,10 @@ class Player(object):
         self.name = name
         self.__cards = cards
 
-    def set_cards(self, cards: List[card.Card]):
+    def set_cards(self, cards: List[card.Card]): # присвоить игроку эти карты
         self.__cards = cards
 
-    def cards_quantity(self):
+    def cards_quantity(self): # число карт у игрока
         return len(self.__cards)
 
     def puid(self):
@@ -22,14 +22,14 @@ class Player(object):
     def cards(self):
         return self.__cards
 
-    def __add_cards_from_deck(self, deck: List[card.Card], ind: int):
+    def __add_cards_from_deck(self, deck: List[card.Card], ind: int): # взять ind карт из колоды
         self.__cards += deck[:ind]
         del deck[:ind]
 
-    def take_cards_from_field(self, cards: List[card.Card]):  # брать со стола
+    def take_cards_from_field(self, cards: List[card.Card]):  # брать со стола (пас или что-то такое)
         self.__cards += cards
 
-    def take_lack_cards_from_deck(self, deck: List[card.Card]):  # брать из колоды
+    def take_lack_cards_from_deck(self, deck: List[card.Card]):  # брать из колоды недостающие
         lack = max(0, CARDS_FOR_PLAYER - self.cards_quantity())
         to = min(lack, len(deck))
         self.__add_cards_from_deck(deck, to)
