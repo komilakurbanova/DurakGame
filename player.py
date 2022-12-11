@@ -5,10 +5,11 @@ CARDS_FOR_PLAYER = 6
 
 
 class Player(object):
-    def __init__(self, puid: str, name: str, cards: List[card.Card]):
+    def __init__(self, puid: str, name: str, cards: List[card.Card], last_inline_card=""):
         self.__puid = puid
         self.name = name
         self.__cards = cards
+        self.last_inline_card = last_inline_card
 
     def set_cards(self, cards: List[card.Card]): # присвоить игроку эти карты
         self.__cards = cards
