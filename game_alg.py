@@ -1,18 +1,19 @@
 from database import *
 from game import *
 from player import *
+from field import *
 import logging
 import os
 import datetime as dt
 
-from telegram import (Update, 
+from telegram import (Update,
                       ReplyKeyboardRemove,
-                      ReplyKeyboardMarkup, 
+                      ReplyKeyboardMarkup,
                       KeyboardButton)
 
-from telegram.ext import (Updater, 
-                          CommandHandler, 
-                          MessageHandler, 
+from telegram.ext import (Updater,
+                          CommandHandler,
+                          MessageHandler,
                           Filters,
                           CallbackContext)
 
@@ -30,7 +31,13 @@ def get_game_parameters(p1: Player, p2: Player, game_alg: Game) -> List[str]:
         hand1, hand2 - рука первого и второго игрока
         table1, table2 - сообщения, которые пойдут игрокам
     """
-    #TODO: Здесь должен быть код. Сколько раз и где вызывается?
+    hand1 = cards_to_str(p1.cards())
+    hand2 = cards_to_str(p2.cards())
+    table1 = game_alg.field.field_view_for_player(p1, game_alg.active_player)
+    table2 = game_alg.field.field_view_for_player(p2, game_alg.active_player)
+    return [hand1, hand2, table1, table2]
+
+    # TODO: Сколько раз и где вызывается?
 
 
 def check_card(message: str, p: Player) -> Tuple[bool, str]:
@@ -38,28 +45,28 @@ def check_card(message: str, p: Player) -> Tuple[bool, str]:
     Здесь же можно и делать ход внутри алгоритма
 
     Args:
-        message (str): сообщение от пользователя. В идеале - 
+        message (str): сообщение от пользователя. В идеале -
         это текст из кнопки, т.е. нажатие на кнопку
-        p1 (Player): игрок
+        p (Player): игрок
 
     Returns:
-        Tuple[bool, str]: 
-        bool - валидность хода, 
+        Tuple[bool, str]:
+        bool - валидность хода,
         str - ответ из алгоритма
     """
-    #TODO: Здесь должен быть код
+    # TODO: Здесь должен быть код
 
-
-def alg_step(p: Player, **cards) -> None:
+def alg_step(p: Player, game: Game, **cards) -> None:
     """Ход в алгоритме
 
     Args:
         p (Player): игрок
-        
+
     В cards либо один ключ "card",
     либо два: "card" и "inline_card"
     """
-    #TODO: Здесь должен быть код. Здесь нужен ещё game?
+
+    # TODO: Здесь должен быть код. Здесь нужен ещё game?
 
 
 def new_game(username1: str, username2: str, context: CallbackContext) -> None:
@@ -80,14 +87,12 @@ def new_game(username1: str, username2: str, context: CallbackContext) -> None:
 
     game_alg = Game(p1, p2)
 
-    # Выбрать игрока для начала
-    if random.randint(0, 1):
-        p2 = player.Player(user1.chat_id, user1.username)
-        p1 = player.Player(user2.chat_id, user2.username)
-    else:
-        p1 = player.Player(user1.chat_id, user1.username)
-        p2 = player.Player(user2.chat_id, user2.username)
-    
+    # Выбрать игрока для начала (он уже определен после создания игры!)
+    # if p2.puid() == game_alg.field.start_player.puid():
+    #    p1, p2 = p2, p1
+    p1 = game_alg.attack_player
+    p2 = game_alg.defence_player
+
     # Активные игры по уникальному ключу
     active_games[game_id] = [p1, p2, game_alg]
 
@@ -96,12 +101,12 @@ def new_game(username1: str, username2: str, context: CallbackContext) -> None:
     # "стол" и "руку", т.е. text-message и reply-keyboards
     hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_alg)
 
-    context.bot.sent_message(chat_id=user1.chat_id, text=table1, reply_markup=hand1)
-    context.bot.sent_message(chat_id=user2.chat_id, text=table2, reply_markup=hand2)
+    context.bot.send_message(chat_id=user1.chat_id, text=table1, reply_markup=hand1)
+    context.bot.send_message(chat_id=user2.chat_id, text=table2, reply_markup=hand2)
 
 
 def next_iter(p1: Player, p2: Player, game_id: int, gamebot: GameTelegramBot) -> None:
-    """Меняет игроков местами, ставит first_step в True 
+    """Меняет игроков местами, ставит first_step в True
 
     Args:
         p1 (_type_): _description_
@@ -109,8 +114,7 @@ def next_iter(p1: Player, p2: Player, game_id: int, gamebot: GameTelegramBot) ->
         game_id (_type_): _description_
         gamebot (_type_): _description_
     """
-    active_games[game_id][0], active_games[game_id][1] = active_games[game_id][1], \
-                                                         active_games[game_id][0]
+    active_games[game_id][0], active_games[game_id][1] = active_games[game_id][1], active_games[game_id][0]
     gamebot.first_step = True
     gamebot.save()
 
@@ -134,11 +138,11 @@ def game_block(update: Update, context: CallbackContext) -> None:
     hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj)
 
     username2 = player2.username
-    
+
     # Если второй пользователь пишет сообщение,
     # он ещё неактивный, а первый защищается -
     # проверяем на желание подкинуть
-    if p2.username == username and p2.active and p1.defensive:
+    if p2.name == username and p2.active and p1.defensive:
         if message == "Подкинуть":
             # Теперь p2 активный, а p1 пассивный (но всё ещё с defensive True)
             p1.active = False
@@ -147,7 +151,7 @@ def game_block(update: Update, context: CallbackContext) -> None:
             p2.defensive = True
 
             next_iter(p1, p2, game_id, gamebot)
-            
+
             context.bot.send_message(chat_id=p1.chat_id, text=table1, reply_markup=hand1)
             context.bot.send_message(chat_id=p2.chat_id, text=table2, reply_markup=hand2)
 
@@ -156,52 +160,69 @@ def game_block(update: Update, context: CallbackContext) -> None:
             p1.active = True
             p2.defensive = True
             p2.active = False
-            
+
             next_iter(p1, p2, game_id, gamebot)
 
             context.bot.send_message(chat_id=p1.chat_id, text=table1, reply_markup=hand1)
             context.bot.send_message(chat_id=p2.chat_id, text=table2, reply_markup=hand2)
 
     # Если активный и не защищается -> нападает
-    if p1.username == username and p1.active and not p1.defensive:
+    if p1.name == username and p1.active and not p1.defensive:
         # Если первое сообщение после начала атаки
         if gamebot.first_step:
             context.bot.send_message(chat_id=p1.chat_id, text=table1, reply_markup=hand1)
             context.bot.send_message(chat_id=p2.chat_id, text=table2, reply_markup=hand2)
             gamebot.first_step = False
             gamebot.save()
-  
+
         elif message != "OK":
-            flag_ok, alg_response = check_card(message, p1)
+            flag_ok, alg_response = game_obj.action_possible_attack(message)
+            # flag_ok, alg_response = check_card(message, p1)
             if not flag_ok:
                 if len(alg_response):
                     context.bot.send_message(chat_id=p1.chat_id, text=alg_response)
             else:
-                alg_step(p1, {'card': message})
+                p1.add_attack_card(make_card_from_message(message))
+                #alg_step(p1, {'card': message})
                 ### Здесь надо присылать какие-либо сообщения после двум пользователям?
         else:
             # Если нажал кнопку ОК, то теперь p2 активный, он защищается
+            cards = p1.attack_hand
+            for c in cards:
+                game_obj.field.table[c] = card.NONECARD
+                p1.remove_card(c)
+            p1.attack_hand = []
+
             p1.active = False
             p1.defensive = False
             p2.active = True
             p2.defensive = True
 
             next_iter(p1, p2, game_id, gamebot)
-    
+
     # Если активный и защищается -> защищается))
-    elif p1.username == username and p1.active and p1.defensive:
+    elif p1.name == username and p1.active and p1.defensive:
         if gamebot.first_step:
             context.bot.send_message(chat_id=p1.chat_id, text=table1, reply_markup=hand1)
             context.bot.send_message(chat_id=p2.chat_id, text=table2, reply_markup=hand2)
             gamebot.first_step = False
             gamebot.save()
-  
+
         elif message != "OK":
             # Если в прошлый раз была inline карта
             if len(p1.last_inline_card):
-                flag_ok, alg_response = check_card(message, p1)
-                alg_step(p1, {'card': message, 'inline_card': p1.last_inline_card})
-                p1.last_inline_card = ""
+                #flag_ok, alg_response = check_card(message, p1)
+                ### не уверена, что именно last inline card здесь
+                flag_ok, alg_response = game_obj.action_possible_defence(p1.last_inline_card, message)
+                #alg_step(p1, {'card': message, 'inline_card': p1.last_inline_card})
+                if not flag_ok:
+                    if len(alg_response):
+                        context.bot.send_message(chat_id=p1.chat_id, text=alg_response)
+                else:
+                    def_c = make_card_from_message(message)
+                    game_obj.field.table[make_card_from_message(p1.last_inline_card)] = def_c
+                    p1.remove_card(def_c)
+                    p1.last_inline_card = ""
             else:
                 # Не забыть убрать другие inline карты
                 flag_ok, alg_response = check_card(message, p1)
@@ -211,11 +232,10 @@ def game_block(update: Update, context: CallbackContext) -> None:
                 else:
                     p1.last_inline_card = message
         else:
-            
+
             context.bot.send_message(chat_id=p1.chat_id, text=table1, reply_markup=hand1)
             context.bot.send_message(chat_id=p2.chat_id, text=table2, reply_markup=hand2)
             # Тут мы спрашиваем, хочет ли второй игрок подкинуть карты
             # Лучше вызвать get_game_parameters
-
 
 # TODO: Раскидать код из game_block соотв. функционалу: атака, защита, подкинуть. Добавить проверку на inline карту
