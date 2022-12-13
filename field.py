@@ -4,6 +4,13 @@ from typing import List, Dict
 import random
 
 suit_to_emoji = {'SPADES': '♠', 'CLUBS': '♣', 'DIAMONDS': '♦', 'HEARTS': '♥', 'NONEXIST': ''}
+emoji_to_suit = {'♠': 'SPADES', '♣': 'CLUBS', '♦': 'DIAMONDS', '♥': 'HEARTS', '': 'NONEXIST'}
+
+
+def make_card_from_message(message):
+    value = int(str[:-1])
+    suit = card.Card.Suit(emoji_to_suit[str[-1]])
+    return card.Card(value, suit)
 
 
 def generate_deck():
