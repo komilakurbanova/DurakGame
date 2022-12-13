@@ -1,14 +1,15 @@
 import card
 import player
-import field
+from field import *
+from typing import Tuple
 
 
 class Game(object):
     def __init__(self, p1: player.Player, p2: player.Player):
-        self.field = field.Field(p1, p2)
+        self.field = Field(p1, p2)
         self.field.initialize_game()
         self.active_player = self.field.start_player
-        if p1.puid() != self.active_player:
+        if p1.puid() != self.active_player.username():
             self.defence_player = p1
             self.attack_player = p2
         else:
@@ -19,53 +20,58 @@ class Game(object):
         # это и на поле отображено, но, возможно,
         # такая длубликация оправдана
         message = ''
-        if p.puid == self.active_player:
+        if p.puid() == self.active_player.username():
             message = "Place your card!"
-        elif p.puid == self.defence_player:
+        elif p.puid() == self.defence_player.puid():
             message = "The opponent is making a move, get ready to defend"
         return message
 
-    def is_defending(self, puid: str):
-        return self.defence_player.puid() == puid
+    def is_defending(self, username: str):
+        return self.defence_player.puid() == username
 
-    def is_attacking(self, puid: str):
-        return self.attack_player.puid() == puid
+    def is_attacking(self, username: str):
+        return self.attack_player.puid() == username
 
-    def is_active(self, puid: str):  # его ход ?
-        return self.active_player.puid() == puid
+    def is_active(self, username: str):  # его ход ?
+        return self.active_player.username() == username
 
     # проверить, что игрок вообще имеет право делать ход
 
-    def action_possible_attack(self, c: card.Card, t):  # нам приходит ход человека и мы
+    def action_possible_attack(self, message: str) -> Tuple[bool, str]:  # нам приходит ход человека и мы
         # смотрим, можно ли его совершить
         # совпадает ли карта по номиналу с теми, что на столе
-        if not t:
-            return True
-        cur_table = list(t.keys())
-        cur_table += (list(t.values()))
+        c = make_card_from_message(message)
+        if not self.field.table.copy():
+            return True, ''
+        cur_table = list(self.field.table.copy().keys())
+        cur_table += (list(self.field.table.copy().values()))
         set_table_vals = set()
         for x in cur_table:
             if x != card.NONECARD:
                 set_table_vals.add(x.value)
         if c.value in set_table_vals:
-            return True
-        return False
+            return True, ''
+        return False, 'You cannot put this card, choose another one!'
 
-    def action_possible_defence(self, on_table_card: card.Card, c: card.Card):
+    def action_possible_defence(self, on_table_card: str, c: str) -> Tuple[bool, str]:
         # совпадает ли карта мастью и больше ли она
-        return c > on_table_card
+        c = make_card_from_message(c)
+        on_table_card = make_card_from_message(on_table_card)
+        if c > on_table_card:
+            return True, ''
+        else:
+            return False, "Your card cannot beat your opponent's card"
 
     def normal_move(self, p: player.Player):  # игрок решает положить карту
         if not self.is_active(p.puid()):
             raise ValueError('This player must be passive')
         if self.is_attacking(p.puid()):
-            cur_table = self.field.table.copy()
             # функцию, которая получит от бота список cards, которыми игрок атакует
 
             cards = self.player_attack_turn()
 
             for c in cards:
-                if not self.action_possible_attack(c, cur_table):
+                if not self.action_possible_attack(c):
                     raise ValueError('Invalid card, choose another one')
                 self.field.table[c] = card.NONECARD
                 p.remove_card(c)
