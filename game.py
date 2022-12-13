@@ -1,5 +1,3 @@
-import card
-import player
 from field import *
 from typing import Tuple
 
@@ -45,6 +43,7 @@ class Game(object):
             return True, ''
         cur_table = list(self.field.table.copy().keys())
         cur_table += (list(self.field.table.copy().values()))
+        cur_table += list(self.attack_player.attack_hand)
         set_table_vals = set()
         for x in cur_table:
             if x != card.NONECARD:
@@ -62,6 +61,9 @@ class Game(object):
         else:
             return False, "Your card cannot beat your opponent's card"
 
+    '''
+    НИЖЕ ЛОГИКА ИГРЫ 
+    
     def normal_move(self, p: player.Player):  # игрок решает положить карту
         if not self.is_active(p.puid()):
             raise ValueError('This player must be passive')
@@ -100,47 +102,29 @@ class Game(object):
             self.active_player = self.field.players()[1]
         else:
             self.active_player = self.field.players()[0]
+    '''
 
     def take_table(self, p: player.Player):  # игрок забирает карты - defence only
-        if not self.is_defending(p.puid()):
-            raise ValueError('This player cannot take cards')
         p.take_cards_from_field(self.field.table)
+        self.field.table = {}
+        self.finish_take()
 
-        self.attack_player, self.defence_player = self.defence_player, self.attack_player
-
-        if self.active_player == self.field.players()[0]:
-            self.active_player = self.field.players()[1]
-        else:
-            self.active_player = self.field.players()[0]
+    def finish_take(self):  # бито - attack only, p - тот, кто бито написал
         self.field.table = {}
         self.field.players()[0].take_lack_cards_from_deck(self.field.deck())
         self.field.players()[1].take_lack_cards_from_deck(self.field.deck())
 
-    def finish_take(self, p: player.Player):  # бито - attack only, p - тот, кто бито написал
-        if p.puid() != self.attack_player.puid():
-            raise ValueError('You cannot finish this take')
-        self.attack_player, self.defence_player = self.defence_player, self.attack_player
-
-        if self.active_player == self.field.players()[0]:
-            self.active_player = self.field.players()[1]
-        else:
-            self.active_player = self.field.players()[0]
-
-        self.field.table = {}
-        self.field.players()[0].take_lack_cards_from_deck(self.field.deck())
-        self.field.players()[1].take_lack_cards_from_deck(self.field.deck())
-        pass
-
+    '''
     def player_attack_turn(self):  # а должно ли это быть методом класса?
         pass
     #  return [self.attack_player.cards()[-1]]     тестирую
 
-
     def player_defence_turn(self, unbeaten_cards):  # а должно ли это быть методом класса?
         pass
     #  return {unbeaten_cards[0]: card.Card(9, 'H')}      тестирую
+    '''
 
-
+'''  ТЕСТИРОВАНИЕ  '''
 #p1 = player.Player('1', 'first', [])
 #p2 = player.Player('2', 'second', [])
 #game = Game(p1, p2)
