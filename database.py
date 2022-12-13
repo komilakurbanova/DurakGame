@@ -26,7 +26,7 @@ class Users(BaseModel):
 
     Args:
         BaseModel (_type_): for peewee db
-    
+
     Пользователя описывает:
     username - username из API telegram
     chat_id - chat_id из API telegram
@@ -56,7 +56,6 @@ def get_user(username: str) -> Users:
     if len(user):
         return user.get()
     raise DoesNotExist
-        
 
 
 def add_user(chat_id: int, username: str) -> None:
@@ -69,7 +68,7 @@ def add_user(chat_id: int, username: str) -> None:
     new_user = Users.create(username=username, chat_id=chat_id)
     new_user.save()
 
-    
+
 def check_user(chat_id: int, username: str) -> None:
     """Проверить пользователя в БД
     Если его там нет - добавить
@@ -109,11 +108,11 @@ def edit_stage(username, new_stage: str) -> None:
 
 
 class GameTelegramBot(BaseModel):
-    """Таблица с играми. 
+    """Таблица с играми.
 
     Args:
         BaseModel (_type_): _description_
-        
+
     Игру описывает:
     game_id - уникальный id игры
     user1, user2 - игроки класса Users с теми же атрибутами
@@ -151,8 +150,8 @@ def get_game(player: Users) -> GameTelegramBot:
     Returns:
         GameTelegramBot: игра
     """
-    game = GameTelegramBot.select().where((GameTelegramBot.end == False) & 
-                                          ((GameTelegramBot.player1 == player) | 
+    game = GameTelegramBot.select().where((GameTelegramBot.end == False) &
+                                          ((GameTelegramBot.player1 == player) |
                                            (GameTelegramBot.player2 == player)))
     if len(game):
         return game.get()
