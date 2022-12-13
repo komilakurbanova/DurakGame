@@ -41,9 +41,8 @@ class Field(object):
 
     def initialize_game(self):
         deck = generate_deck()
-        random.seed(42)  # надо бы улучшить рандом, но пока и так сойдет
+        random.seed(42)  # TODO: 42 для тестирования
         random.shuffle(deck)
-        # print_cards(deck)
         self.trump = deck.pop().suit
         self.__players[0].set_cards(deck[-6:])
         self.__players[1].set_cards(deck[-12:-6])
