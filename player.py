@@ -13,6 +13,7 @@ class Player(object):
         self.defensive = False
         self.last_inline_card = last_inline_card
         self.attack_hand: List[card.Card] = []
+        self.number_of_beaten_cards = 0
 
     def set_cards(self, cards: List[card.Card]):  # присвоить игроку эти карты
         self.__cards = cards
