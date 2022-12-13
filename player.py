@@ -9,12 +9,15 @@ class Player(object):
         self.__puid = puid
         self.name = name
         self.__cards = cards
+        self.active = False
+        self.defensive = False
         self.last_inline_card = last_inline_card
+        self.attack_hand: List[card.Card] = []
 
-    def set_cards(self, cards: List[card.Card]): # присвоить игроку эти карты
+    def set_cards(self, cards: List[card.Card]):  # присвоить игроку эти карты
         self.__cards = cards
 
-    def cards_quantity(self): # число карт у игрока
+    def cards_quantity(self):  # число карт у игрока
         return len(self.__cards)
 
     def puid(self):
@@ -23,7 +26,10 @@ class Player(object):
     def cards(self):
         return self.__cards
 
-    def __add_cards_from_deck(self, deck: List[card.Card], ind: int): # взять ind карт из колоды
+    def add_attack_card(self, c: card.Card):
+        self.attack_hand += c
+
+    def __add_cards_from_deck(self, deck: List[card.Card], ind: int):  # взять ind карт из колоды
         self.__cards += deck[:ind]
         del deck[:ind]
 
