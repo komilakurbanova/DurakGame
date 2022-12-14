@@ -4,12 +4,18 @@ from typing import List, Dict
 import random
 
 suit_to_emoji = {'SPADES': '♠', 'CLUBS': '♣', 'DIAMONDS': '♦', 'HEARTS': '♥', 'NONEXIST': ''}
-emoji_to_suit = {'♠': 'SPADES', '♣': 'CLUBS', '♦': 'DIAMONDS', '♥': 'HEARTS', '': 'NONEXIST'}
+emoji_to_suit = {'♠': 'S', '♣': 'C', '♦': 'D', '♥': 'H', '': 'N'}
+
+extra = {'J': 11, 'Q': 12, 'K': 13, 'A': 14}
 
 
-def make_card_from_message(message):
-    value = int(str[:-1])
-    suit = card.Card.Suit(emoji_to_suit[str[-1]])
+def make_card_from_message(message: str):
+    message = message.strip()
+    if message[:-1] in extra:
+        value = extra[message[:-1]]
+    else:
+        value = int(message[:-1])
+    suit = card.Card.Suit(emoji_to_suit[message[-1]])
     return card.Card(value, suit)
 
 
@@ -33,6 +39,42 @@ class Field(object):
         self.table = dict()
         self.start_player = None
 
+    def add_attack_card(self, c: card.Card, p: player.Player):
+        players = self.players()
+        if players[0].puid() == p.puid():
+            self.__players[0].attack_hand.append(c)
+        else:
+            self.__players[1].attack_hand.append(c)
+
+    def last_inl(self, message: str, p: player.Player):
+        players = self.players()
+        if players[0].puid() == p.puid():
+            self.__players[0].last_inline_card = message
+        else:
+            self.__players[1].last_inline_card = message
+
+
+    def number_of_beaten(self, num: int, p: player.Player):
+        players = self.players()
+        if players[0].puid() == p.puid():
+            self.__players[0].number_of_beaten_cards = int
+        else:
+            self.__players[1].number_of_beaten_cards = int
+
+    def remove(self, c: card.Card, p: player.Player):
+        players = self.players()
+        if players[0].puid() == p.puid():
+            self.__players[0].remove_card(c)
+        else:
+            self.__players[1].remove_card(c)
+
+    def change_attack_hand(self, lst, p):
+        players = self.players()
+        if players[0].puid() == p.puid():
+            self.__players[0].attack_hand = lst
+        else:
+            self.__players[1].attack_hand = lst
+
     def deck(self):
         return self.__deck
 
@@ -43,7 +85,8 @@ class Field(object):
         deck = generate_deck()
         random.seed(42)  # TODO: 42 для тестирования
         random.shuffle(deck)
-        self.trump = deck.pop().suit
+        tmp = deck.pop()
+        self.trump = tmp.suit
         self.__players[0].set_cards(deck[-6:])
         self.__players[1].set_cards(deck[-12:-6])
         del deck[-12:]
@@ -58,7 +101,7 @@ class Field(object):
                 min_trump = c.value
                 self.start_player = self.__players[1]
 
-        deck.insert(0, self.trump)
+        deck.insert(0, tmp)
         self.__deck = deck
         return self
 
@@ -89,10 +132,10 @@ class Field(object):
                            "\nКозырь {7}"\
                            "\nКолода 🃏x{4} \n" \
                            "\nСтол: {5}\n\n" \
-                           "Ходит {6}".format(enemy_player.name, '🃏' * enemy_player.cards_quantity(),
-                                              query_player.name,
+                           "Ходит {6}".format(enemy_player.username, '🃏' * enemy_player.cards_quantity(),
+                                              query_player.username,
                                               cards_to_str(query_player.cards()), len(self.__deck),
-                                              table_to_print, turn.name, suit_to_emoji[self.trump.name])
+                                              table_to_print, turn.username, suit_to_emoji[self.trump.name])
         else:
             message_text = "Игроки:\n" \
                            "{0}  {1}\n" \
@@ -100,9 +143,9 @@ class Field(object):
                            "\nКозырь {7}" \
                            "\nКолода 🃏x{4} \n" \
                            "\nСтол: {5}\n\n" \
-                           "Ваш ход!".format(enemy_player.name, '🃏' * enemy_player.cards_quantity(), query_player.name,
+                           "Ваш ход!".format(enemy_player.username, '🃏' * enemy_player.cards_quantity(), query_player.username,
                                              cards_to_str(query_player.cards()), len(self.__deck),
-                                             table_to_print, turn.name, suit_to_emoji[self.trump.name])
+                                             table_to_print, turn.username, suit_to_emoji[self.trump.name])
         return message_text
 
 
