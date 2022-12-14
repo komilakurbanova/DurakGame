@@ -275,7 +275,6 @@ def game_block(update: Update, context: CallbackContext) -> None:
             p2.active = False
             p1.defensive = False
             p2.defensive = True
-durad
             # Тут мы спрашиваем, хочет ли второй игрок подкинуть карты
             # Лучше вызвать get_game_parameters
         elif message == "Взять":
