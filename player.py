@@ -7,7 +7,7 @@ CARDS_FOR_PLAYER = 6
 class Player(object):
     def __init__(self, puid: str, name: str, cards: List[card.Card], last_inline_card=""):
         self.__puid = puid
-        self.name = name
+        self.username = name
         self.__cards = cards
         self.active = False
         self.defensive = False
@@ -28,9 +28,12 @@ class Player(object):
         return self.__cards
 
     def add_attack_card(self, c: card.Card):
-        self.attack_hand += c
+        self.attack_hand.append(c)
 
     def __add_cards_from_deck(self, deck: List[card.Card], ind: int):  # взять ind карт из колоды
+        print(ind)
+        print(len(deck))
+        print(deck)
         self.__cards += deck[:ind]
         del deck[:ind]
 
