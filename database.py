@@ -77,8 +77,9 @@ def check_user(chat_id: int, username: str) -> None:
         chat_id (int): chat_id из API telegram
         username (str): username из API telegram
     """
-    user = get_user(username)
-    if not len(user):
+    try:
+        user = get_user(username)
+    except:
         add_user(chat_id, username)
 
 
@@ -123,7 +124,8 @@ class GameTelegramBot(BaseModel):
     player1 = ForeignKeyField(Users, backref='game')
     player2 = ForeignKeyField(Users, backref='game')
     end = BooleanField(default=False)
-    win = ForeignKeyField(Users, backref='game')
+    first_step = BooleanField(default=False)
+    # win = ForeignKeyField(Users, backref='game')
 
 
 def create_game(user1: Users, user2: Users) -> int:
@@ -158,4 +160,7 @@ def get_game(player: Users) -> GameTelegramBot:
     raise DoesNotExist
 
 
-db.create_tables([Users, GameTelegramBot])  
+db.drop_tables([Users, GameTelegramBot])
+
+
+db.create_tables([Users, GameTelegramBot])
