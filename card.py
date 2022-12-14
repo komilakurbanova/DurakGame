@@ -57,3 +57,5 @@ class Card(object):
 
 
 NONECARD = Card(6, 'N')
+
+
