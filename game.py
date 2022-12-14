@@ -7,7 +7,7 @@ class Game(object):
         self.field = Field(p1, p2)
         self.field.initialize_game()
         self.active_player = self.field.start_player
-        if p1.puid() != self.active_player.username():
+        if p1.puid() != self.active_player.puid():
             self.defence_player = p1
             self.attack_player = p2
         else:
@@ -55,6 +55,8 @@ class Game(object):
     def action_possible_defence(self, on_table_card: str, c: str) -> Tuple[bool, str]:
         # совпадает ли карта мастью и больше ли она
         c = make_card_from_message(c)
+        if (c.suit == self.field.trump):
+            return True, ''
         on_table_card = make_card_from_message(on_table_card)
         if c > on_table_card:
             return True, ''
