@@ -5,6 +5,7 @@ from field import *
 import logging
 import os
 import datetime as dt
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 from telegram import (Update,
                       ReplyKeyboardRemove,
@@ -96,6 +97,12 @@ def start_message(p1, p2, gamebot, table1, table2, hand1, hand2, context):
         gamebot.save()
 
 
+def check_inline_card(update, message):
+    if update.callback_query is not None and "callback_query" in update.callback_query:
+        return True
+    return False
+
+
 def game_block(update: Update, context: CallbackContext) -> None:
     """Основная логика, связывающая бота и алгоритм
 
@@ -114,7 +121,7 @@ def game_block(update: Update, context: CallbackContext) -> None:
 
     hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj)
 
-    flag_inline_card = check_inline_card(message) # проверка на инлайн карtу
+    flag_inline_card = check_inline_card(update, message)  # проверка на инлайн карtу
     # TODO: написать проверку на то, пришла карта inline или нет
 
     # Если второй пользователь пишет сообщение,
@@ -191,7 +198,20 @@ def game_block(update: Update, context: CallbackContext) -> None:
                 if def_c == card.NONECARD:
                     unbeaten_cards.append(att_c)
             context.bot.send_message(chat_id=p2.chat_id, text='Выберите карту, которую хотите отбить. Скиньте карту,'
-                                                              ' которой отбиваете', )
+                                                              ' которой отбиваете')
+
+            keyboard = []
+            for card_ in unbeaten_cards:
+                keyboard.append([InlineKeyboardButton(text=str(card_))])
+            reply_markup = InlineKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
+            context.bot.send_message(chat_id=p2.chat_id, reply_markup=reply_markup)
+
+            hand_2 = []
+            for i in hand2.split():
+                hand_2.append([KeyboardButton(text=i)])
+            hand_2.append([KeyboardButton(text="Взять")])
+            game = ReplyKeyboardMarkup(hand_2, one_time_keyboard=True, resize_keyboard=True)
+            context.bot.send_message(chat_id=p2.chat_id, reply_markup=game)
             # TODO: выкинуть unbeaten_cards как inline под предыдущим, выкинуть hand2 как клаву
 
 
@@ -225,6 +245,19 @@ def game_block(update: Update, context: CallbackContext) -> None:
                     context.bot.send_message(chat_id=p2.chat_id,
                                              text='Выберите карту, которую хотите отбить. Скиньте карту,'
                                                   ' которой отбиваете', )
+
+                    keyboard = []
+                    for card_ in unbeaten_cards:
+                        keyboard.append([InlineKeyboardButton(text=str(card_))])
+                    reply_markup = InlineKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
+                    context.bot.send_message(chat_id=p2.chat_id, reply_markup=reply_markup)
+
+                    hand_2 = []
+                    for i in hand2.split():
+                        hand_2.append([KeyboardButton(text=i)])
+                    hand_2.append([KeyboardButton(text="Взять")])
+                    cards_in_hand = ReplyKeyboardMarkup(hand_2, one_time_keyboard=True, resize_keyboard=True)
+                    context.bot.send_message(chat_id=p2.chat_id, reply_markup=cards_in_hand)
                     # TODO: выкинуть unbeaten_cards как inline под предыдущим, выкинуть hand2 как клаву
 
             elif flag_inline_card:
@@ -242,7 +275,7 @@ def game_block(update: Update, context: CallbackContext) -> None:
             p2.active = False
             p1.defensive = False
             p2.defensive = True
-
+durad
             # Тут мы спрашиваем, хочет ли второй игрок подкинуть карты
             # Лучше вызвать get_game_parameters
         elif message == "Взять":
