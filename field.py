@@ -37,7 +37,7 @@ class Field(object):
         self.__deck = []
         self.trump = None
         self.table = dict()
-        self.start_player = None
+        self.start_player = self.__players[0]
 
     def add_attack_card(self, c: card.Card, p: player.Player):
         players = self.players()

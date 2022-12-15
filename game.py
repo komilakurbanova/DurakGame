@@ -55,31 +55,28 @@ class Game(object):
     def action_possible_defence(self, on_table_card: str, c: str) -> Tuple[bool, str]:
         # совпадает ли карта мастью и больше ли она
         c = make_card_from_message(c)
-        if (c.suit == self.field.trump):
-            return True, ''
         on_table_card = make_card_from_message(on_table_card)
+        if c.suit == self.field.trump and on_table_card != self.field.trump:
+            return True, ''
         if c > on_table_card:
             return True, ''
         else:
-            return False, "Your card cannot beat your opponent's card"
+            return False, "Нельзя отбить этой карту выбранную карту противника"
 
     '''
     НИЖЕ ЛОГИКА ИГРЫ 
-    
+
     def normal_move(self, p: player.Player):  # игрок решает положить карту
         if not self.is_active(p.puid()):
             raise ValueError('This player must be passive')
         if self.is_attacking(p.puid()):
             # функцию, которая получит от бота список cards, которыми игрок атакует
-
             cards = self.player_attack_turn()
-
             for c in cards:
                 if not self.action_possible_attack(c):
                     raise ValueError('Invalid card, choose another one')
                 self.field.table[c] = card.NONECARD
                 p.remove_card(c)
-
         if self.is_defending(p.puid()):
             unbeaten_cards = []
             for e in self.field.table:
@@ -91,9 +88,7 @@ class Game(object):
                 raise ValueError('Oops, you do not need to defend')
             # функцию, которая выкинет боту неотбитые unbeaten_cards и получит от него
             # словарь dict[unbeaten, beating]
-
             defence = self.player_defence_turn(unbeaten_cards)
-
             for att_c in defence:
                 def_c = defence[att_c]
                 if not self.action_possible_defence(att_c, def_c):
@@ -120,55 +115,55 @@ class Game(object):
     def player_attack_turn(self):  # а должно ли это быть методом класса?
         pass
     #  return [self.attack_player.cards()[-1]]     тестирую
-
     def player_defence_turn(self, unbeaten_cards):  # а должно ли это быть методом класса?
         pass
     #  return {unbeaten_cards[0]: card.Card(9, 'H')}      тестирую
     '''
 
+
 '''  ТЕСТИРОВАНИЕ  '''
-#p1 = player.Player('1', 'first', [])
-#p2 = player.Player('2', 'second', [])
-#game = Game(p1, p2)
-#print(game.active_player.name)
-#print(game.attack_player.name)
-#print(game.defence_player.name)
+# p1 = player.Player('1', 'first', [])
+# p2 = player.Player('2', 'second', [])
+# game = Game(p1, p2)
+# print(game.active_player.name)
+# print(game.attack_player.name)
+# print(game.defence_player.name)
 
-#print('-------------')
-#print(game.field.field_view_for_player(p1, game.active_player))
-#print()
-
-
-#print('-------------')
-#print(game.field.field_view_for_player(p2, game.active_player))
-#print()
+# print('-------------')
+# print(game.field.field_view_for_player(p1, game.active_player))
+# print()
 
 
-#print('-------------')
-#game.normal_move(p2)
-#print(game.field.field_view_for_player(p2, game.active_player))
-#print()
-#print('-------------')
-#print(game.active_player.name)
-#print(game.attack_player.name)
-#print(game.defence_player.name)
-#print('-------------')
+# print('-------------')
+# print(game.field.field_view_for_player(p2, game.active_player))
+# print()
 
-#game.normal_move(p1)
 
-#print(game.field.field_view_for_player(p2, game.active_player))
-#print('-------------')
-#print(game.active_player.name)
-#print(game.attack_player.name)
-#print(game.defence_player.name)
+# print('-------------')
+# game.normal_move(p2)
+# print(game.field.field_view_for_player(p2, game.active_player))
+# print()
+# print('-------------')
+# print(game.active_player.name)
+# print(game.attack_player.name)
+# print(game.defence_player.name)
+# print('-------------')
 
-#game.finish_take(game.attack_player)
+# game.normal_move(p1)
 
-#print()
-#print('-------------')
+# print(game.field.field_view_for_player(p2, game.active_player))
+# print('-------------')
+# print(game.active_player.name)
+# print(game.attack_player.name)
+# print(game.defence_player.name)
 
-#print(game.field.field_view_for_player(p2, game.active_player))
+# game.finish_take(game.attack_player)
 
-#print(game.active_player.name)
-#print(game.attack_player.name)
-#print(game.defence_player.name)
+# print()
+# print('-------------')
+
+# print(game.field.field_view_for_player(p2, game.active_player))
+
+# print(game.active_player.name)
+# print(game.attack_player.name)
+# print(game.defence_player.name)
