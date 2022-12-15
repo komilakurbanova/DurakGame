@@ -37,8 +37,10 @@ class Player(object):
         self.__cards += deck[:ind]
         del deck[:ind]
 
-    def take_cards_from_field(self, cards: List[card.Card]):  # брать со стола (пас или что-то такое)
-        self.__cards += cards
+    def take_cards_from_field(self, cards):  # брать со стола (пас или что-то такое)
+        for c in cards:
+            if c != card.NONECARD:
+                self.__cards.append(c)
 
     def take_lack_cards_from_deck(self, deck: List[card.Card]):  # брать из колоды недостающие
         lack = max(0, CARDS_FOR_PLAYER - self.cards_quantity())
@@ -48,12 +50,14 @@ class Player(object):
     def remove_card(self, c: card.Card):
         self.__cards.remove(c)
 
-    def sort_cards(self):  # возвращает словарь отсорченных по мастям карт (для реализации игры с ботом полезно)
-        cards_by_suits = {}
-        for s in card.Card.Suit:
-            cards_by_suits[s] = []
-        for c in self.__cards:
-            cards_by_suits[c.suit].append(c.value)
-        for s in card.Card.Suit:
-            cards_by_suits[s].sort()
-        return cards_by_suits
+
+def sort_cards(cards: List[card.Card]):
+    return sorted(cards)
+
+# p1 = Player('1', 'first', [ card.Card(8, 'D'), card.Card(7,'H'), card.Card(8,'H'), card.Card(7, 'D')])
+# p2 = Player('2', 'second', [])
+# for c in p1.cards():
+#     print(c, end=' ')
+# print()
+# for c in (sort_cards(p1.cards())):
+#     print(c, end=' ')

@@ -63,16 +63,6 @@ class Game(object):
         else:
             return False, "Нельзя отбить этой карту выбранную карту противника"
 
-    def take_table(self, p: player.Player):  # игрок забирает карты - defence only
-        p.take_cards_from_field(self.field.table)
-        self.field.table = {}
-        self.finish_take()
-
-    def finish_take(self):  # бито - attack only, p - тот, кто бито написал
-        self.field.table = {}
-        self.field.players()[0].take_lack_cards_from_deck(self.field.deck())
-        self.field.players()[1].take_lack_cards_from_deck(self.field.deck())
-
     '''
     НИЖЕ ЛОГИКА ИГРЫ 
 
@@ -111,6 +101,16 @@ class Game(object):
             self.active_player = self.field.players()[0]
     '''
 
+    def take_table(self, p: player.Player):  # игрок забирает карты - defence only
+        p.take_cards_from_field(self.field.table.keys())
+        p.take_cards_from_field(self.field.table.values())
+        self.field.table = {}
+        self.finish_take()
+
+    def finish_take(self):  # бито - attack only, p - тот, кто бито написал
+        self.field.table = {}
+        self.field.players()[0].take_lack_cards_from_deck(self.field.deck())
+        self.field.players()[1].take_lack_cards_from_deck(self.field.deck())
 
     '''
     def player_attack_turn(self):  # а должно ли это быть методом класса?
