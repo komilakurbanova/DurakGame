@@ -485,9 +485,9 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
                 context.bot.send_message(chat_id=player1.chat_id, text='Противник взял стол')
                 context.bot.send_message(chat_id=player2.chat_id, text='Вы взяли стол. Ой...')
 
+                hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj, username, context)
                 if get_stage(p1.username) == "wait" or get_stage(p2.username) == "wait":
                     return
-                hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj, username, context)
                 hand_1 = []
                 for i in hand1.split():
                     hand_1.append([KeyboardButton(text=i)])
@@ -504,4 +504,3 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
             context.bot.send_message(chat_id=player2.chat_id,
                                      text='Вы точно жмакнули на карту соперника, а потом прислали свою карту?')
             return
-
