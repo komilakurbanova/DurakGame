@@ -38,7 +38,9 @@ class Player(object):
         del deck[:ind]
 
     def take_cards_from_field(self, cards: List[card.Card]):  # брать со стола (пас или что-то такое)
-        self.__cards += cards
+        for c in cards:
+            if c != card.NONECARD:
+                self.__cards.append(c)
 
     def take_lack_cards_from_deck(self, deck: List[card.Card]):  # брать из колоды недостающие
         lack = max(0, CARDS_FOR_PLAYER - self.cards_quantity())
