@@ -100,7 +100,7 @@ def main_block(update: Update, context: CallbackContext) -> None:
 
     elif message == "Назад":
         update.message.reply_text("Чего изволите теперь?", reply_markup=menu_markup)
-        edit_stage(username, "new")
+        edit_stage(username, "menu")
 
     elif message == "Игра":
         update.message.reply_text("Выберите тип игры", reply_markup=game_markup)
