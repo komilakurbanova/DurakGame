@@ -29,7 +29,7 @@ class Users(BaseModel):
     username - username из API telegram
     chat_id - chat_id из API telegram
     stage - одно из состояний пользователя:
-        1) new - только зарегистрировался
+        1) menu - в меню (базовое состояние)
         2) wait_responce - Пользователь нажал на "Играть"
         3) game - Пользователь в игре
         4) wait - Пользователь не в игре
@@ -37,7 +37,7 @@ class Users(BaseModel):
     """
     username = CharField(unique=False)
     chat_id = IntegerField(unique=True)
-    stage = TextField(default="new")
+    stage = TextField(default="menu")
     active_game_id = IntegerField(default=0)
 
 
