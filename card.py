@@ -10,6 +10,9 @@ class Card(object):
         HEARTS = 'H'  # ♡
         NONEXIST = 'N'
 
+        def __gt__(self, other):  # p1.__gt__(p2)  <=> p1 > p2
+            return ord(self.value) > ord(other.value)
+
     def __init__(self,  *args):
         try:
             if len(args) == 2:
@@ -38,7 +41,7 @@ class Card(object):
 
     def __lt__(self, other):  # p1.__lt__(p2)  <=> p1 < p2
         if self.suit != other.suit:
-            return False
+            return self.suit < other.suit
         return self.value < other.value
 
     def __gt__(self, other):  # p1.__gt__(p2)  <=> p1 > p2
@@ -57,5 +60,4 @@ class Card(object):
 
 
 NONECARD = Card(6, 'N')
-
 
