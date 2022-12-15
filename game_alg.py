@@ -56,17 +56,19 @@ def finish_the_game(username, context: CallbackContext, res: int) -> None:
         winner = p1.username
     else:
         winner = p2.username
-    game = get_game(p1.username)
-    game.end = True
-    game.save()
+    print(winner)
+    gamebot = get_game(player1)
+    gamebot.end = True
+    gamebot.save()
+
+    edit_stage(p1.username, "wait")
+    edit_stage(p2.username, "wait")
 
     context.bot.send_message(chat_id=player1.chat_id, text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner),
                              reply_markup=menu_markup)
     context.bot.send_message(chat_id=player2.chat_id, text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner),
                              reply_markup=menu_markup)
 
-    edit_stage(p1.username, "wait")
-    edit_stage(p2.username, "wait")
 
 def get_game_parameters(p1: Player, p2: Player, game_alg: Game, username, context) -> List[str]:
     """_summary_
@@ -136,6 +138,9 @@ def new_game(username1: str, username2: str, context: CallbackContext) -> None:
     # Получить две руки и два стола
     # Одно сообщение каждому из пользователей - это прислать
     # "стол" и "руку", т.е. text-message и reply-keyboards
+
+    if get_stage(p1.username) == "wait" or get_stage(p2.username) == "wait":
+        return
     hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_alg, username1, context)
     hand_1 = []
     for i in hand1.split():
@@ -197,6 +202,8 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
     if player1.username != p1.username:
         player1, player2 = player2, player1
 
+    if get_stage(p1.username) == "wait" or get_stage(p2.username) == "wait":
+        return
     hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj, username, context)
     hand_1 = []
     for i in hand1.split():
@@ -240,6 +247,9 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
             game_obj.defence_player = p1
             active_games[game_id] = [p1, p2, game_obj]
             game_obj.finish_take()
+            if get_stage(p1.username) == "wait" or get_stage(p2.username) == "wait":
+                return
+
             hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj, username, context)
             hand_1 = []
             for i in hand1.split():
@@ -260,6 +270,8 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
             flag_ok, alg_response = game_obj.action_possible_attack(message)
             if not flag_ok:
                 if len(alg_response):
+                    if get_stage(p1.username) == "wait" or get_stage(p2.username) == "wait":
+                        return
                     hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj, username, context)
                     hand_1 = []
                     for i in hand1.split():
@@ -283,6 +295,9 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
             game_obj.active_player = p2
             game_obj.attack_player = p1
             game_obj.defence_player = p2
+
+            if get_stage(p1.username) == "wait" or get_stage(p2.username) == "wait":
+                return
 
             hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj, username, context)
 
@@ -324,6 +339,8 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
         flag_ok, alg_response = game_obj.action_possible_attack(message)
         if not flag_ok:
             if len(alg_response):
+                if get_stage(p1.username) == "wait" or get_stage(p2.username) == "wait":
+                    return
                 hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj, username, context)
                 hand_1 = []
                 for i in hand1.split():
@@ -348,6 +365,8 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
             game_obj.attack_player = p1
             game_obj.defence_player = p2
 
+            if get_stage(p1.username) == "wait" or get_stage(p2.username) == "wait":
+                return
             hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj, username, context)
 
             hand_1 = []
@@ -425,6 +444,8 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
                         game_obj.defence_player = p2
                         active_games[game_id] = [p1, p2, game_obj]
 
+                        if get_stage(p1.username) == "wait" or get_stage(p2.username) == "wait":
+                            return
                         hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj, username, context)
 
                         hand_1 = []
@@ -464,6 +485,8 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
                 context.bot.send_message(chat_id=player1.chat_id, text='Противник взял стол')
                 context.bot.send_message(chat_id=player2.chat_id, text='Вы взяли стол. Ой...')
 
+                if get_stage(p1.username) == "wait" or get_stage(p2.username) == "wait":
+                    return
                 hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj, username, context)
                 hand_1 = []
                 for i in hand1.split():
