@@ -63,6 +63,16 @@ class Game(object):
         else:
             return False, "Нельзя отбить этой карту выбранную карту противника"
 
+    def take_table(self, p: player.Player):  # игрок забирает карты - defence only
+        p.take_cards_from_field(self.field.table)
+        self.field.table = {}
+        self.finish_take()
+
+    def finish_take(self):  # бито - attack only, p - тот, кто бито написал
+        self.field.table = {}
+        self.field.players()[0].take_lack_cards_from_deck(self.field.deck())
+        self.field.players()[1].take_lack_cards_from_deck(self.field.deck())
+
     '''
     НИЖЕ ЛОГИКА ИГРЫ 
 
@@ -101,15 +111,6 @@ class Game(object):
             self.active_player = self.field.players()[0]
     '''
 
-    def take_table(self, p: player.Player):  # игрок забирает карты - defence only
-        p.take_cards_from_field(self.field.table)
-        self.field.table = {}
-        self.finish_take()
-
-    def finish_take(self):  # бито - attack only, p - тот, кто бито написал
-        self.field.table = {}
-        self.field.players()[0].take_lack_cards_from_deck(self.field.deck())
-        self.field.players()[1].take_lack_cards_from_deck(self.field.deck())
 
     '''
     def player_attack_turn(self):  # а должно ли это быть методом класса?
@@ -119,51 +120,3 @@ class Game(object):
         pass
     #  return {unbeaten_cards[0]: card.Card(9, 'H')}      тестирую
     '''
-
-
-'''  ТЕСТИРОВАНИЕ  '''
-# p1 = player.Player('1', 'first', [])
-# p2 = player.Player('2', 'second', [])
-# game = Game(p1, p2)
-# print(game.active_player.name)
-# print(game.attack_player.name)
-# print(game.defence_player.name)
-
-# print('-------------')
-# print(game.field.field_view_for_player(p1, game.active_player))
-# print()
-
-
-# print('-------------')
-# print(game.field.field_view_for_player(p2, game.active_player))
-# print()
-
-
-# print('-------------')
-# game.normal_move(p2)
-# print(game.field.field_view_for_player(p2, game.active_player))
-# print()
-# print('-------------')
-# print(game.active_player.name)
-# print(game.attack_player.name)
-# print(game.defence_player.name)
-# print('-------------')
-
-# game.normal_move(p1)
-
-# print(game.field.field_view_for_player(p2, game.active_player))
-# print('-------------')
-# print(game.active_player.name)
-# print(game.attack_player.name)
-# print(game.defence_player.name)
-
-# game.finish_take(game.attack_player)
-
-# print()
-# print('-------------')
-
-# print(game.field.field_view_for_player(p2, game.active_player))
-
-# print(game.active_player.name)
-# print(game.attack_player.name)
-# print(game.defence_player.name)
