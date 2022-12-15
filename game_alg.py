@@ -201,7 +201,6 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
                                      reply_markup=ReplyKeyboardMarkup(hand_2, one_time_keyboard=True,
                                                                       resize_keyboard=True, ))
 
-            # start_message(player1, player2, gamebot, table1, table2, hand1, hand2, context)
             next_iter(game_id, gamebot)
             return
         else:
@@ -395,14 +394,19 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
             p1.active = True
             p2.active = False
             p1.defensive = False
-            p2.defensive = False
+            p2.defensive = True
+
             game_obj.take_table(p2)
-            p1.take_lack_cards_from_deck(game_obj.field.deck())
+
+            game_obj.active_player = p1
+            game_obj.attack_player = p1
+            game_obj.defence_player = p2
+
             active_games[game_id] = [p1, p2, game_obj]
-            game_obj.finish_take()
-            game_obj.active_player = p2
-            game_obj.attack_player = p2
-            game_obj.defence_player = p1
+
+            context.bot.send_message(chat_id=player1.chat_id, text='Противник взял стол')
+            context.bot.send_message(chat_id=player2.chat_id, text='Вы взяли стол. Ой...')
+
             hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj)
             hand_1 = []
             for i in hand1.split():
