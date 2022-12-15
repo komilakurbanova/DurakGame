@@ -55,13 +55,13 @@ class Game(object):
     def action_possible_defence(self, on_table_card: str, c: str) -> Tuple[bool, str]:
         # совпадает ли карта мастью и больше ли она
         c = make_card_from_message(c)
-        if (c.suit == self.field.trump):
-            return True, ''
         on_table_card = make_card_from_message(on_table_card)
+        if c.suit == self.field.trump and on_table_card != self.field.trump:
+            return True, ''
         if c > on_table_card:
             return True, ''
         else:
-            return False, "Your card cannot beat your opponent's card"
+            return False, "Нельзя отбить этой карту выбранную карту противника"
 
     '''
     НИЖЕ ЛОГИКА ИГРЫ 
