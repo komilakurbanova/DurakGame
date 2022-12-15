@@ -22,7 +22,7 @@ menu_markup = ReplyKeyboardMarkup([[KeyboardButton(text='Игра')],
                                   resize_keyboard=True,
                                   )
 
-game = ReplyKeyboardMarkup([[KeyboardButton(text='Игра с другом')],
+game_markup = ReplyKeyboardMarkup([[KeyboardButton(text='Игра с другом')],
                             [KeyboardButton(text='Игра с ботом')],
                             [KeyboardButton(text='Игра с рандомным игроком')],
                             [KeyboardButton(text='Назад')]],
@@ -35,7 +35,23 @@ cancel_markup = ReplyKeyboardMarkup([['Назад']],
                                     resize_keyboard=True,
                                     )
 
-help_text = "Чиллим, играем, пон"
+help_text = "Правила игры!\n" \
+"Первое правила клуба дураков - любой дурак знает правила дурака.\n" \
+"Ну а если серьезно, то вот они.\n\n" \
+"У каждого игрока по 6 карт, первым ходит тот, у кого на руках есть меньший козырь, игра вам это сообщит." \
+"На поле вы видите ваши карты, что сейчас на столе и чей ход.\n"\
+"Если сейчас ваша очередь, вы можете выложить на стол карту из имеющихся на руках - будут доступны в меню. " \
+            "Если выбранной картой нельзя воспользоваться, вы получите сообщение об этом - карты нужно будет" \
+            " выбрать заново. После выбора нажмите/напишите ОК.\n\n" \
+"Если вы ходите и стол сейчас пуст -  вы можете выложить одну карту или несколько одинакового достоинства. " \
+            "Если стол не пуст и вы атакуете, то положите карты любой масти, достоинство которых совпадает с д" \
+            "остоинством любой из карт, уже лежащих на столе\n\n"\
+"Если вы отбиваете карты, вы должны выбрать, какую бьёте, а затем - чем бьёте из карт в меню. Отбить можно картой " \
+"той же масти большего достоинства или козырем. Если нужно побить козырь - подойдёт только козырь большего номинала.\n\n"\
+"Если вы хотите закончить ход в случае бито - нажмите такую кнопку. Если не можете отбиться и хотите забрать карты, нажмите взять." \
+" После этого игрокам доберутся карты из колоды. Если она пуста, игра продолжиться до определения победителя."\
+"Побеждает игрок, первый оставшийся без карт на руках.\n\n"\
+"Приятной игры!"
 
 
 def start_block(update: Update, context: CallbackContext) -> None:
@@ -50,7 +66,7 @@ def start_block(update: Update, context: CallbackContext) -> None:
     check_user(update.message.chat_id, username)
     stage = get_stage(username)
 
-    update.message.reply_text(f"Привет, {username}!")
+    update.message.reply_text(f"Привет, {username}!", reply_markup=menu_markup)
 
 
 def main_block(update: Update, context: CallbackContext) -> None:
@@ -66,7 +82,7 @@ def main_block(update: Update, context: CallbackContext) -> None:
     if flag_inline_card:
         game_block(update.callback_query, context, flag_inline_card)
         return
-    # print(update)
+
     username = update.message.from_user.username
     message = update.message.text
     check_user(update.message.chat_id, username)
@@ -81,12 +97,24 @@ def main_block(update: Update, context: CallbackContext) -> None:
         # TODO: где стата?
     elif message == "Правила":
         update.message.reply_text(help_text, reply_markup=cancel_markup)
-        # TODO: правила?
+
     elif message == "Назад":
-        update.message.reply_text("Надеюсь, ты собой доволен", reply_markup=menu_markup)
+        update.message.reply_text("Чего изволите теперь?", reply_markup=menu_markup)
+        edit_stage(username, "new")
+
     elif message == "Игра":
+        update.message.reply_text("Выберите тип игры", reply_markup=game_markup)
+
+    elif message == "Игра с другом":
         edit_stage(username, "wait_responce")
-        update.message.reply_text("Пришли юзернейм друга")
+        update.message.reply_text("Пришли юзернейм друга в формате @username", reply_markup=cancel_markup)
+
+    elif message == "Игра с ботом":
+        update.message.reply_text("Будет в будущих обновлениях! Сейчас доступна игра с другом", reply_markup=game_markup)
+
+    elif message == "Игра с рандомным игроком":
+        update.message.reply_text("Будет в будущих обновлениях! Сейчас доступна игра с другом", reply_markup=game_markup)
+
     elif message == "Изменить имя":
         pass
         # TODO: где?
@@ -104,7 +132,7 @@ def main_block(update: Update, context: CallbackContext) -> None:
 
 
 def main() -> None:
-    updater = Updater('5590111815:AAGP4kaHOvck-THoO_zKGvfBuAX62DvRtGk')
+    updater = Updater('5739756352:AAH1NQRrgcSdsNPTcWlTyynqPHrcyA2n4Xo')
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start_block))
