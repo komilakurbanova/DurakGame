@@ -50,7 +50,7 @@ def start_block(update: Update, context: CallbackContext) -> None:
     check_user(update.message.chat_id, username)
     stage = get_stage(username)
 
-    update.message.reply_text(f"Привет, {username}!")
+    update.message.reply_text(f"Привет, {username}!", reply_markup=menu_markup)
 
 
 def main_block(update: Update, context: CallbackContext) -> None:
@@ -66,7 +66,7 @@ def main_block(update: Update, context: CallbackContext) -> None:
     if flag_inline_card:
         game_block(update.callback_query, context, flag_inline_card)
         return
-    # print(update)
+
     username = update.message.from_user.username
     message = update.message.text
     check_user(update.message.chat_id, username)
@@ -104,7 +104,7 @@ def main_block(update: Update, context: CallbackContext) -> None:
 
 
 def main() -> None:
-    updater = Updater('5590111815:AAGP4kaHOvck-THoO_zKGvfBuAX62DvRtGk')
+    updater = Updater('5578941922:AAH46kuxDLxJ9gpZ3Tfz8faGCFg40ZXXe7U')
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start_block))
