@@ -63,6 +63,44 @@ class Game(object):
         else:
             return False, "Нельзя отбить этой карту выбранную карту противника"
 
+    '''
+    НИЖЕ ЛОГИКА ИГРЫ 
+
+    def normal_move(self, p: player.Player):  # игрок решает положить карту
+        if not self.is_active(p.puid()):
+            raise ValueError('This player must be passive')
+        if self.is_attacking(p.puid()):
+            # функцию, которая получит от бота список cards, которыми игрок атакует
+            cards = self.player_attack_turn()
+            for c in cards:
+                if not self.action_possible_attack(c):
+                    raise ValueError('Invalid card, choose another one')
+                self.field.table[c] = card.NONECARD
+                p.remove_card(c)
+        if self.is_defending(p.puid()):
+            unbeaten_cards = []
+            for e in self.field.table:
+                att_c = e
+                def_c = self.field.table[e]
+                if def_c == card.NONECARD:
+                    unbeaten_cards.append(att_c)
+            if not unbeaten_cards:
+                raise ValueError('Oops, you do not need to defend')
+            # функцию, которая выкинет боту неотбитые unbeaten_cards и получит от него
+            # словарь dict[unbeaten, beating]
+            defence = self.player_defence_turn(unbeaten_cards)
+            for att_c in defence:
+                def_c = defence[att_c]
+                if not self.action_possible_defence(att_c, def_c):
+                    raise ValueError('Invalid card, choose another one')
+                self.field.table[att_c] = def_c
+                p.remove_card(def_c)
+        if self.active_player == self.field.players()[0]:
+            self.active_player = self.field.players()[1]
+        else:
+            self.active_player = self.field.players()[0]
+    '''
+
     def take_table(self, p: player.Player):  # игрок забирает карты - defence only
         p.take_cards_from_field(self.field.table.keys())
         p.take_cards_from_field(self.field.table.values())
@@ -73,3 +111,60 @@ class Game(object):
         self.field.table = {}
         self.field.players()[0].take_lack_cards_from_deck(self.field.deck())
         self.field.players()[1].take_lack_cards_from_deck(self.field.deck())
+
+    '''
+    def player_attack_turn(self):  # а должно ли это быть методом класса?
+        pass
+    #  return [self.attack_player.cards()[-1]]     тестирую
+    def player_defence_turn(self, unbeaten_cards):  # а должно ли это быть методом класса?
+        pass
+    #  return {unbeaten_cards[0]: card.Card(9, 'H')}      тестирую
+    '''
+
+
+'''  ТЕСТИРОВАНИЕ  '''
+# p1 = player.Player('1', 'first', [])
+# p2 = player.Player('2', 'second', [])
+# game = Game(p1, p2)
+# print(game.active_player.name)
+# print(game.attack_player.name)
+# print(game.defence_player.name)
+
+# print('-------------')
+# print(game.field.field_view_for_player(p1, game.active_player))
+# print()
+
+
+# print('-------------')
+# print(game.field.field_view_for_player(p2, game.active_player))
+# print()
+
+
+# print('-------------')
+# game.normal_move(p2)
+# print(game.field.field_view_for_player(p2, game.active_player))
+# print()
+# print('-------------')
+# print(game.active_player.name)
+# print(game.attack_player.name)
+# print(game.defence_player.name)
+# print('-------------')
+
+# game.normal_move(p1)
+
+# print(game.field.field_view_for_player(p2, game.active_player))
+# print('-------------')
+# print(game.active_player.name)
+# print(game.attack_player.name)
+# print(game.defence_player.name)
+
+# game.finish_take(game.attack_player)
+
+# print()
+# print('-------------')
+
+# print(game.field.field_view_for_player(p2, game.active_player))
+
+# print(game.active_player.name)
+# print(game.attack_player.name)
+# print(game.defence_player.name)

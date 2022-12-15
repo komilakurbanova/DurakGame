@@ -93,7 +93,7 @@ def main_block(update: Update, context: CallbackContext) -> None:
         return
 
     if message == "Статистика":
-        update.message.reply_text('Тут ничего нет)))', reply_markup=cancel_markup)
+        update.message.reply_text(help_text, reply_markup=cancel_markup)
         # TODO: где стата?
     elif message == "Правила":
         update.message.reply_text(help_text, reply_markup=cancel_markup)

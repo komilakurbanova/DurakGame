@@ -37,7 +37,7 @@ class Player(object):
         self.__cards += deck[:ind]
         del deck[:ind]
 
-    def take_cards_from_field(self, cards: List[card.Card]):  # брать со стола (пас или что-то такое)
+    def take_cards_from_field(self, cards):  # брать со стола (пас или что-то такое)
         for c in cards:
             if c != card.NONECARD:
                 self.__cards.append(c)
