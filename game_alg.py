@@ -42,7 +42,7 @@ def get_game_parameters(p1: Player, p2: Player, game_alg: Game) -> List[str]:
         hand2 = cards_to_str(p2.cards())
     table1 = game_alg.field.field_view_for_player(p1, game_alg.active_player)
     table2 = game_alg.field.field_view_for_player(p2, game_alg.active_player)
-    return [hand1, hand2, table1, table2]
+    return [sort_cards(hand1), sort_cards(hand2), table1, table2]
 
 
 def new_game(username1: str, username2: str, context: CallbackContext) -> None:
@@ -91,10 +91,12 @@ def new_game(username1: str, username2: str, context: CallbackContext) -> None:
     for i in hand2.split():
         hand_2.append([KeyboardButton(text=i)])
 
-    context.bot.send_message(chat_id=user1.chat_id, text=table1, reply_markup=ReplyKeyboardMarkup(hand_1,  one_time_keyboard=True,
-                                                                                                  resize_keyboard=True))
-    context.bot.send_message(chat_id=user2.chat_id, text=table2, reply_markup=ReplyKeyboardMarkup(hand_2,  one_time_keyboard=True,
-                                                                                                  resize_keyboard=True))
+    context.bot.send_message(chat_id=user1.chat_id, text=table1,
+                             reply_markup=ReplyKeyboardMarkup(hand_1, one_time_keyboard=True,
+                                                              resize_keyboard=True))
+    context.bot.send_message(chat_id=user2.chat_id, text=table2,
+                             reply_markup=ReplyKeyboardMarkup(hand_2, one_time_keyboard=True,
+                                                              resize_keyboard=True))
 
 
 def next_iter(game_id: int, gamebot: GameTelegramBot) -> None:
@@ -184,8 +186,6 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
             game_obj.attack_player = p2
             game_obj.defence_player = p1
             active_games[game_id] = [p1, p2, game_obj]
-            p2.take_lack_cards_from_deck(game_obj.field.deck())
-            p1.take_lack_cards_from_deck(game_obj.field.deck())
             game_obj.finish_take()
             hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj)
             hand_1 = []
@@ -276,8 +276,8 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
                 for i in hand1.split():
                     hand_1.append([KeyboardButton(text=i)])
                 context.bot.send_message(chat_id=player1.chat_id, text=alg_response,
-                                            reply_markup=ReplyKeyboardMarkup(hand_1, one_time_keyboard=True,
-                                                                            resize_keyboard=True, ))
+                                         reply_markup=ReplyKeyboardMarkup(hand_1, one_time_keyboard=True,
+                                                                          resize_keyboard=True, ))
                 return
         else:
             msg = make_card_from_message(message)
@@ -303,10 +303,12 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
             hand_2 = []
             for i in hand2.split():
                 hand_2.append([KeyboardButton(text=i)])
-            context.bot.send_message(chat_id=player1.chat_id, text=table1, reply_markup=ReplyKeyboardMarkup(hand_1,  one_time_keyboard=True,
-                                  resize_keyboard=True,))
-            context.bot.send_message(chat_id=player2.chat_id, text=table2, reply_markup=ReplyKeyboardMarkup(hand_2,  one_time_keyboard=True,
-                                  resize_keyboard=True,))
+            context.bot.send_message(chat_id=player1.chat_id, text=table1,
+                                     reply_markup=ReplyKeyboardMarkup(hand_1, one_time_keyboard=True,
+                                                                      resize_keyboard=True, ))
+            context.bot.send_message(chat_id=player2.chat_id, text=table2,
+                                     reply_markup=ReplyKeyboardMarkup(hand_2, one_time_keyboard=True,
+                                                                      resize_keyboard=True, ))
 
             unbeaten_cards = []
             for e in game_obj.field.table:
@@ -318,105 +320,111 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
             keyboard = []
             for card_ in unbeaten_cards:
                 keyboard.append([InlineKeyboardButton(text=cards_to_str([card_]), callback_data=cards_to_str([card_]))])
-            kb = InlineKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True,)
+            kb = InlineKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True, )
             context.bot.send_message(chat_id=player2.chat_id,
                                      text='Выберите карту, чтобы отбить', reply_markup=kb)
             hand_2.append([KeyboardButton(text="Взять")])
             game = ReplyKeyboardMarkup(hand_2, one_time_keyboard=True, resize_keyboard=True)
-            context.bot.send_message(chat_id=player2.chat_id, text='Скиньте карту, которой отбиваете', reply_markup=game)
+            context.bot.send_message(chat_id=player2.chat_id, text='Скиньте карту, которой отбиваете',
+                                     reply_markup=game)
 
 
     # Если активный и защищается -> защищается))
     elif p2.username == username and p2.active and p2.defensive:
-        if message != 'Взять':
-            # Если в прошлый раз была inline карта
-            if len(p2.last_inline_card) and not flag_inline_card:
-                flag_ok, alg_response = game_obj.action_possible_defence(p2.last_inline_card, message)
-                if not flag_ok:
-                    if len(alg_response):
+        try:
+            if message != 'Взять':
+                # Если в прошлый раз была inline карта
+                if len(p2.last_inline_card) and not flag_inline_card:
+                    flag_ok, alg_response = game_obj.action_possible_defence(p2.last_inline_card, message)
+                    if not flag_ok:
+                        if len(alg_response):
+                            hand_2 = []
+                            for i in hand2.split():
+                                hand_2.append([KeyboardButton(text=i)])
+                            hand_2.append([KeyboardButton(text="Взять")])
+                            cards_in_hand = ReplyKeyboardMarkup(hand_2, one_time_keyboard=True, resize_keyboard=True)
+                            context.bot.send_message(chat_id=player2.chat_id, text=alg_response,
+                                                     reply_markup=cards_in_hand)
+                            return
+                    else:
+                        p2.number_of_beaten_cards -= 1
+
+                        def_c = make_card_from_message(message)
+                        game_obj.field.table[make_card_from_message(p2.last_inline_card)] = def_c
+
+                        unbeaten_cards = []  # передать, как inline кнопки
+                        for e in game_obj.field.table:
+                            att_c = e
+                            d = game_obj.field.table[e]
+                            if d == card.NONECARD:
+                                unbeaten_cards.append(att_c)
+                        if unbeaten_cards:
+                            unbeaten_cards.remove(make_card_from_message(p2.last_inline_card))
+                        p2.last_inline_card = ""
+                        p2.remove_card(def_c)
+
+                        p1.active = True
+                        p2.active = False
+                        p1.defensive = False
+                        p2.defensive = True
+                        game_obj.active_player = p1
+                        game_obj.attack_player = p1
+                        game_obj.defence_player = p2
+                        active_games[game_id] = [p1, p2, game_obj]
+
+                        hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj)
+
+                        hand_1 = []
+                        for i in hand1.split():
+                            hand_1.append([KeyboardButton(text=i)])
+                        hand_1.append([KeyboardButton(text="Бито")])
+                        hand_1.append([KeyboardButton(text="Подкинуть")])
                         hand_2 = []
                         for i in hand2.split():
                             hand_2.append([KeyboardButton(text=i)])
-                        hand_2.append([KeyboardButton(text="Взять")])
-                        cards_in_hand = ReplyKeyboardMarkup(hand_2, one_time_keyboard=True, resize_keyboard=True)
-                        context.bot.send_message(chat_id=player2.chat_id, text=alg_response,
-                                                 reply_markup=cards_in_hand)
-                        return
-                else:
-                    p2.number_of_beaten_cards -= 1
 
-                    def_c = make_card_from_message(message)
-                    game_obj.field.table[make_card_from_message(p2.last_inline_card)] = def_c
+                        context.bot.send_message(chat_id=player1.chat_id, text=table1,
+                                                 reply_markup=ReplyKeyboardMarkup(hand_1, one_time_keyboard=True,
+                                                                                  resize_keyboard=True, ))
+                        context.bot.send_message(chat_id=player2.chat_id, text=table2,
+                                                 reply_markup=ReplyKeyboardMarkup(hand_2, one_time_keyboard=True,
+                                                                                  resize_keyboard=True, ))
 
-                    unbeaten_cards = []  # передать, как inline кнопки
-                    for e in game_obj.field.table:
-                        att_c = e
-                        d = game_obj.field.table[e]
-                        if d == card.NONECARD:
-                            unbeaten_cards.append(att_c)
-                    if unbeaten_cards:
-                        unbeaten_cards.remove(make_card_from_message(p2.last_inline_card))
-                    p2.last_inline_card = ""
-                    p2.remove_card(def_c)
-
-                    p1.active = True
-                    p2.active = False
-                    p1.defensive = False
-                    p2.defensive = True
-                    game_obj.active_player = p1
-                    game_obj.attack_player = p1
-                    game_obj.defence_player = p2
+                elif flag_inline_card:
+                    # Не забыть убрать другие inline карты
+                    p2.last_inline_card = message
                     active_games[game_id] = [p1, p2, game_obj]
+            elif message == "Взять":
+                p1.active = True
+                p2.active = False
+                p1.defensive = False
+                p2.defensive = True
 
-                    hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj)
+                game_obj.take_table(p2)
 
-                    hand_1 = []
-                    for i in hand1.split():
-                        hand_1.append([KeyboardButton(text=i)])
-                    hand_1.append([KeyboardButton(text="Бито")])
-                    hand_1.append([KeyboardButton(text="Подкинуть")])
-                    hand_2 = []
-                    for i in hand2.split():
-                        hand_2.append([KeyboardButton(text=i)])
+                game_obj.active_player = p1
+                game_obj.attack_player = p1
+                game_obj.defence_player = p2
 
-                    context.bot.send_message(chat_id=player1.chat_id, text=table1,
-                                             reply_markup=ReplyKeyboardMarkup(hand_1, one_time_keyboard=True,
-                                                                              resize_keyboard=True, ))
-                    context.bot.send_message(chat_id=player2.chat_id, text=table2,
-                                             reply_markup=ReplyKeyboardMarkup(hand_2, one_time_keyboard=True,
-                                                                              resize_keyboard=True, ))
-
-            elif flag_inline_card:
-                # Не забыть убрать другие inline карты
-                p2.last_inline_card = message
                 active_games[game_id] = [p1, p2, game_obj]
-        elif message == "Взять":
-            p1.active = True
-            p2.active = False
-            p1.defensive = False
-            p2.defensive = True
 
-            game_obj.take_table(p2)
+                context.bot.send_message(chat_id=player1.chat_id, text='Противник взял стол')
+                context.bot.send_message(chat_id=player2.chat_id, text='Вы взяли стол. Ой...')
 
-            game_obj.active_player = p1
-            game_obj.attack_player = p1
-            game_obj.defence_player = p2
-
-            active_games[game_id] = [p1, p2, game_obj]
-
-            context.bot.send_message(chat_id=player1.chat_id, text='Противник взял стол')
-            context.bot.send_message(chat_id=player2.chat_id, text='Вы взяли стол. Ой...')
-
-            hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj)
-            hand_1 = []
-            for i in hand1.split():
-                hand_1.append([KeyboardButton(text=i)])
-            hand_2 = []
-            for i in hand2.split():
-                hand_2.append([KeyboardButton(text=i)])
-            context.bot.send_message(chat_id=player1.chat_id, text=table1,
-                                     reply_markup=ReplyKeyboardMarkup(hand_1, one_time_keyboard=True,
-                                                                      resize_keyboard=True, ))
-            context.bot.send_message(chat_id=player2.chat_id, text=table2,
-                                     reply_markup=ReplyKeyboardMarkup(hand_2, one_time_keyboard=True,
-                                                                      resize_keyboard=True, ))
+                hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj)
+                hand_1 = []
+                for i in hand1.split():
+                    hand_1.append([KeyboardButton(text=i)])
+                hand_2 = []
+                for i in hand2.split():
+                    hand_2.append([KeyboardButton(text=i)])
+                context.bot.send_message(chat_id=player1.chat_id, text=table1,
+                                         reply_markup=ReplyKeyboardMarkup(hand_1, one_time_keyboard=True,
+                                                                          resize_keyboard=True, ))
+                context.bot.send_message(chat_id=player2.chat_id, text=table2,
+                                         reply_markup=ReplyKeyboardMarkup(hand_2, one_time_keyboard=True,
+                                                                          resize_keyboard=True, ))
+        except:
+            context.bot.send_message(chat_id=player2.chat_id,
+                                     text='Вы точно жмакнули на карту соперника, а потом прислали свою карту?')
+            return
