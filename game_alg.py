@@ -355,6 +355,7 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
 
     # Если активный и защищается -> защищается))
     elif p2.username == username and p2.active and p2.defensive:
+
         if message != "OK" and message != "Взять":
             # Если в прошлый раз была inline карта
             if len(p2.last_inline_card) and not flag_inline_card:
@@ -443,11 +444,20 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
                                      reply_markup=ReplyKeyboardMarkup(hand_2, one_time_keyboard=True,
                                                                       resize_keyboard=True, ))
             # Тут мы спрашиваем, хочет ли второй игрок подкинуть карты
-            # Лучше вызвать get_game_parameters
+
         elif message == "Взять":
             game_obj.take_table(p2)
             p2.take_lack_cards_from_deck(game_obj.field.deck())
             p1.take_lack_cards_from_deck(game_obj.field.deck())
+
+            p1.active = False
+            p2.active = True
+            p1.defensive = True
+            p2.defensive = False
+            game_obj.active_player = p2
+            game_obj.attack_player = p2
+            game_obj.defence_player = p1
+            active_games[game_id] = [p1, p2, game_obj]
 
             hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj)
             hand_1 = []
@@ -473,29 +483,48 @@ menu_markup = ReplyKeyboardMarkup([[KeyboardButton(text='Игра')],
                                   one_time_keyboard=True,
                                   resize_keyboard=True,
                                   )
-# def finish_the_game(game_id, context: CallbackContext) -> None:  #что передавать
-#
-#     """
-#     Завершение игры и определение победителя.
-#     Победитель - игрок без карт при условии пустой колоды
-#     Записывает в db win - пользователя-победителя из Users, end = True
-#     Обнулить необходимые поля:
-#     - поменять stage на wait
-#     - active game id -> 0 ??
-#
-#     Вывести сообщение о победе и в кнопках начальное меню (игра статистика и тд)
-#     """
-#     p1, p2, game_obj = active_games[game_id]
-#
-#     winner = ''
-#
-#     context.bot.send_message(chat_id=player1.chat_id, text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner),
-#                              reply_markup=menu_markup)
-#     context.bot.send_message(chat_id=player2.chat_id, text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner),
-#                              reply_markup=menu_markup)
-#
-#     edit_stage(p1.username, "wait")
-#     edit_stage(p2.username, "wait")
-#
+def finish_the_game(player1, player2, game_id, context: CallbackContext) -> None:  #что передавать
+
+    """
+    Завершение игры и определение победителя.
+    Победитель - игрок без карт при условии пустой колоды
+    Записывает в db win - пользователя-победителя из Users, end = True
+    Обнулить необходимые поля:
+    - поменять stage на wait
+    - active game id -> 0 ??
+
+    Вывести сообщение о победе и в кнопках начальное меню (игра статистика и тд)
+    """
+
+    p1, p2, game_obj = active_games[game_id]
+
+    game = get_game(get_user(p1.username))
+
+    hand1, hand2, table1, table2 = get_game_parameters(p1, p2, game_obj)
+    if len(hand1) == 0:
+        winner = player1.username
+        game.win = player1
+    elif len(hand2) == 0:
+        winner = player2.username
+        game.win = player2
+    else:
+        if len(hand2) > len(hand1):
+            winner = player1.username
+            game.win = player1
+        else:
+            winner = player2.username
+            game.win = player2
+
+    game.end = True
+    game.save()
+
+    context.bot.send_message(chat_id=player1.chat_id, text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner),
+                             reply_markup=menu_markup)
+    context.bot.send_message(chat_id=player2.chat_id, text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner),
+                             reply_markup=menu_markup)
+
+    edit_stage(p1.username, "wait")
+    edit_stage(p2.username, "wait")
+
 
 # TODO: Раскидать код из game_block соотв. функционалу: атака, защита, подкинуть. Добавить проверку на inline карту
