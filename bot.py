@@ -22,7 +22,7 @@ menu_markup = ReplyKeyboardMarkup([[KeyboardButton(text='Игра')],
                                   resize_keyboard=True,
                                   )
 
-game = ReplyKeyboardMarkup([[KeyboardButton(text='Игра с другом')],
+game_markup = ReplyKeyboardMarkup([[KeyboardButton(text='Игра с другом')],
                             [KeyboardButton(text='Игра с ботом')],
                             [KeyboardButton(text='Игра с рандомным игроком')],
                             [KeyboardButton(text='Назад')]],
@@ -100,9 +100,21 @@ def main_block(update: Update, context: CallbackContext) -> None:
 
     elif message == "Назад":
         update.message.reply_text("Чего изволите теперь?", reply_markup=menu_markup)
+        edit_stage(username, "new")
+
     elif message == "Игра":
+        update.message.reply_text("Выберите тип игры", reply_markup=game_markup)
+
+    elif message == "Игра с другом":
         edit_stage(username, "wait_responce")
-        update.message.reply_text("Пришли юзернейм друга")
+        update.message.reply_text("Пришли юзернейм друга в формате @username", reply_markup=cancel_markup)
+
+    elif message == "Игра с ботом":
+        update.message.reply_text("Будет в будущих обновлениях! Сейчас доступна игра с другом", reply_markup=game_markup)
+
+    elif message == "Игра с рандомным игроком":
+        update.message.reply_text("Будет в будущих обновлениях! Сейчас доступна игра с другом", reply_markup=game_markup)
+
     elif message == "Изменить имя":
         pass
         # TODO: где?
