@@ -137,7 +137,7 @@ def create_game(user1: Users, user2: Users) -> int:
     Returns:
         int: уникальный id игры
     """
-    game = GameTelegramBot.create(player1=user1, player2=user2)
+    game = GameTelegramBot.create(player1=user1, player2=user2, win=user1)
 
     return game.game_id
 

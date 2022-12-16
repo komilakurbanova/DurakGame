@@ -66,8 +66,8 @@ def start_block(update: Update, context: CallbackContext) -> None:
     check_user(update.message.chat_id, username)
     stage = get_stage(username)
 
-    update.message.reply_text(f"Привет, {username}!", reply_markup=menu_markup)
-
+    update.message.reply_text(f"Привет, {username}!\nПришли своё игровое имя!", reply_markup=menu_markup)
+    edit_stage(username, "wait_name")
 
 def main_block(update: Update, context: CallbackContext) -> None:
     """
@@ -128,8 +128,8 @@ def main_block(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("Будет в будущих обновлениях! Сейчас доступна игра с другом", reply_markup=game_markup)
 
     elif message == "Изменить имя":
-        pass
-        # TODO: где?
+        edit_stage(username, "wait_name")
+        update.message.reply_text("Пришли своё игровое имя!")
 
     elif stage == 'wait_responce':
         username2 = message.split('@')[1]
@@ -144,7 +144,7 @@ def main_block(update: Update, context: CallbackContext) -> None:
 
 
 def main() -> None:
-    updater = Updater('5578941922:AAH46kuxDLxJ9gpZ3Tfz8faGCFg40ZXXe7U')
+    updater = Updater('5590111815:AAGP4kaHOvck-THoO_zKGvfBuAX62DvRtGk')
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start_block))

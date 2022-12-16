@@ -71,21 +71,21 @@ def finish_the_game(username, context: CallbackContext, res: int) -> None:
         player1, player2 = player2, player1
 
     if res == 1:
-        winner = p1.name
+        winner = p1
     else:
-        winner = p2.name
+        winner = p2
     print(winner)
     gamebot = get_game(player1)
     gamebot.end = True
-    gamebot.win = get_user(winner)
+    gamebot.win = get_user(winner.username)
     gamebot.save()
 
     edit_stage(p1.username, "menu")
     edit_stage(p2.username, "menu")
 
-    context.bot.send_message(chat_id=player1.chat_id, text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner),
+    context.bot.send_message(chat_id=player1.chat_id, text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner.name),
                              reply_markup=menu_markup)
-    context.bot.send_message(chat_id=player2.chat_id, text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner),
+    context.bot.send_message(chat_id=player2.chat_id, text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner.name),
                              reply_markup=menu_markup)
     
 

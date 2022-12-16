@@ -20,7 +20,7 @@ def make_card_from_message(message: str):
 
 
 def generate_deck():
-    sample_deck = [card.Card(val, suit) for val in range(6, 15) for suit in ['S', 'C', 'D', 'H']]
+    sample_deck = [card.Card(val, suit) for val in range(6, 15) for suit in ['S' 'C', 'D', 'H']]
     return sample_deck
 
 
