@@ -83,7 +83,7 @@ class Field(object):
 
     def initialize_game(self):
         deck = generate_deck()
-        random.seed(42)  # TODO: 42 для тестирования
+        random.seed()  # TODO: 42 для тестирования
         random.shuffle(deck)
         tmp = deck.pop()
         self.trump = tmp.suit
