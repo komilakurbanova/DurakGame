@@ -132,7 +132,7 @@ def main_block(update: Update, context: CallbackContext) -> None:
 
 
 def main() -> None:
-    updater = Updater('5578941922:AAH46kuxDLxJ9gpZ3Tfz8faGCFg40ZXXe7U')
+    updater = Updater('')
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start_block))
