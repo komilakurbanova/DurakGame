@@ -5,12 +5,13 @@ CARDS_FOR_PLAYER = 6
 
 
 class Player(object):
-    def __init__(self, puid: str, name: str, cards: List[card.Card], last_inline_card=""):
+    def __init__(self, puid: str, name: str, cards: List[card.Card], last_inline_card="", name_anon="Анон"):
         self.__puid = puid
         self.username = name
         self.__cards = cards
         self.active = False
         self.defensive = False
+        self.name = name_anon
         self.last_inline_card = last_inline_card
         self.attack_hand: List[card.Card] = []
         self.number_of_beaten_cards = 0

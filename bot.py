@@ -66,8 +66,8 @@ def start_block(update: Update, context: CallbackContext) -> None:
     check_user(update.message.chat_id, username)
     stage = get_stage(username)
 
-    update.message.reply_text(f"Привет, {username}!", reply_markup=menu_markup)
-
+    update.message.reply_text(f"Привет, {username}!\nПришли своё игровое имя!", reply_markup=menu_markup)
+    edit_stage(username, "wait_name")
 
 def main_block(update: Update, context: CallbackContext) -> None:
     """
@@ -88,19 +88,31 @@ def main_block(update: Update, context: CallbackContext) -> None:
     check_user(update.message.chat_id, username)
     stage = get_stage(username)
 
+    if stage == "new":
+        update.message.reply_text("Привет! Пришли своё имя!")
+        edit_stage(username, "wait_name")
+        return
+
+    if stage == "wait_name":
+        edit_name(username, message)
+        update.message.reply_text(f"Теперь твоё имя - {message}!")
+        edit_stage(username, 'menu')
+        update.message.reply_text(f"Выбери кнопку", reply_markup=menu_markup)
+        return
+
     if stage == 'game':
         game_block(update, context, flag_inline_card)
         return
 
     if message == "Статистика":
-        update.message.reply_text(help_text, reply_markup=cancel_markup)
-        # TODO: где стата?
+        update.message.reply_text(statistics(username), reply_markup=cancel_markup)
+
     elif message == "Правила":
         update.message.reply_text(help_text, reply_markup=cancel_markup)
 
     elif message == "Назад":
         update.message.reply_text("Чего изволите теперь?", reply_markup=menu_markup)
-        edit_stage(username, "new")
+        edit_stage(username, "menu")
 
     elif message == "Игра":
         update.message.reply_text("Выберите тип игры", reply_markup=game_markup)
@@ -116,8 +128,8 @@ def main_block(update: Update, context: CallbackContext) -> None:
         update.message.reply_text("Будет в будущих обновлениях! Сейчас доступна игра с другом", reply_markup=game_markup)
 
     elif message == "Изменить имя":
-        pass
-        # TODO: где?
+        edit_stage(username, "wait_name")
+        update.message.reply_text("Пришли своё игровое имя!")
 
     elif stage == 'wait_responce':
         username2 = message.split('@')[1]
