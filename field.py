@@ -37,7 +37,7 @@ class Field(object):
         self.__deck = []
         self.trump = None
         self.table = dict()
-        self.start_player = None
+        self.start_player = self.__players[0]
 
     def add_attack_card(self, c: card.Card, p: player.Player):
         players = self.players()
@@ -132,10 +132,10 @@ class Field(object):
                            "\nКозырь {7}"\
                            "\nКолода 🃏x{4} \n" \
                            "\nСтол: {5}\n\n" \
-                           "Ходит {6}".format(enemy_player.username, '🃏' * enemy_player.cards_quantity(),
-                                              query_player.username,
+                           "Ходит {6}".format(enemy_player.name, '🃏' * enemy_player.cards_quantity(),
+                                              query_player.name,
                                               cards_to_str(query_player.cards()), len(self.__deck),
-                                              table_to_print, turn.username, suit_to_emoji[self.trump.name])
+                                              table_to_print, turn.name, suit_to_emoji[self.trump.name])
         else:
             message_text = "Игроки:\n" \
                            "{0}  {1}\n" \
@@ -143,20 +143,7 @@ class Field(object):
                            "\nКозырь {7}" \
                            "\nКолода 🃏x{4} \n" \
                            "\nСтол: {5}\n\n" \
-                           "Ваш ход!".format(enemy_player.username, '🃏' * enemy_player.cards_quantity(), query_player.username,
+                           "Ваш ход!".format(enemy_player.name, '🃏' * enemy_player.cards_quantity(), query_player.name,
                                              cards_to_str(query_player.cards()), len(self.__deck),
-                                             table_to_print, turn.username, suit_to_emoji[self.trump.name])
+                                             table_to_print, turn.name, suit_to_emoji[self.trump.name])
         return message_text
-
-
-def print_cards(x: List[card.Card]):  # это просто для тестирования удобная вещь
-    for c in x:
-        print(c, end=' ')
-    print()
-
-
-#p1 = player.Player('1', 'first', [])
-#p2 = player.Player('2', 'second', [])
-#f = Field(p1, p2)
-#f.initialize_game()
-#print(f.field_view_for_player(p2, p2))
