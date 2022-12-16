@@ -14,9 +14,7 @@ class Game(object):
             self.attack_player = p1
             self.defence_player = p2
 
-    def move_message(self, p: player.Player):  # чтобы сообщить игроку что делать
-        # это и на поле отображено, но, возможно,
-        # такая длубликация оправдана
+    def move_message(self, p: player.Player):
         message = ''
         if p.puid() == self.active_player.username():
             message = "Place your card!"
@@ -50,7 +48,7 @@ class Game(object):
                 set_table_vals.add(x.value)
         if c.value in set_table_vals:
             return True, ''
-        return False, 'Вы не можете положить эту карту! Выберите другую'
+        return False, 'Нельзя положить эту карту! Выберите другую'
 
     def action_possible_defence(self, on_table_card: str, c: str) -> Tuple[bool, str]:
         # совпадает ли карта мастью и больше ли она
@@ -64,7 +62,8 @@ class Game(object):
             return False, "Нельзя отбить этой карту выбранную карту противника"
 
     def take_table(self, p: player.Player):  # игрок забирает карты - defence only
-        p.take_cards_from_field(self.field.table)
+        p.take_cards_from_field(self.field.table.keys())
+        p.take_cards_from_field(self.field.table.values())
         self.field.table = {}
         self.finish_take()
 
