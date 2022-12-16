@@ -32,12 +32,14 @@ class Users(BaseModel):
         1) menu - в меню (базовое состояние)
         2) wait_responce - Пользователь нажал на "Играть"
         3) game - Пользователь в игре
-        4) wait - Пользователь не в игре
+        4) new - впервые в боте, просим задать имя
+        5) wait_name - ждём имя
     active_game_id - id активной игры пользователя (если в игре)
     """
     username = CharField(unique=False)
+    name = CharField(unique=False, default="Аноним")
     chat_id = IntegerField(unique=True)
-    stage = TextField(default="menu")
+    stage = TextField(default="new")
     active_game_id = IntegerField(default=0)
 
 
@@ -98,6 +100,16 @@ def edit_stage(username, new_stage: str) -> None:
     user.stage = new_stage
     user.save()
 
+def edit_name(username, new_name: str) -> None:
+    """Поменять name пользователя
+    Args:
+        username (_type_): username из API telegram
+        new_name (str): новый name
+    """
+    user = get_user(username)
+    user.name = new_name
+    user.save()
+
 
 class GameTelegramBot(BaseModel):
     """Таблица с играми.
@@ -114,7 +126,7 @@ class GameTelegramBot(BaseModel):
     player2 = ForeignKeyField(Users, backref='game')
     end = BooleanField(default=False)
     first_step = BooleanField(default=False)
-    # win = ForeignKeyField(Users, backref='game')
+    win = ForeignKeyField(Users, backref='game')
 
 
 def create_game(user1: Users, user2: Users) -> int:

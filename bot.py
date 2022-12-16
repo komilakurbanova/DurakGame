@@ -88,13 +88,25 @@ def main_block(update: Update, context: CallbackContext) -> None:
     check_user(update.message.chat_id, username)
     stage = get_stage(username)
 
+    if stage == "new":
+        update.message.reply_text("Привет! Пришли своё имя!")
+        edit_stage(username, "wait_name")
+        return
+
+    if stage == "wait_name":
+        edit_name(username, message)
+        update.message.reply_text(f"Теперь твоё имя - {message}!")
+        edit_stage(username, 'menu')
+        update.message.reply_text(f"Выбери кнопку", reply_markup=menu_markup)
+        return
+
     if stage == 'game':
         game_block(update, context, flag_inline_card)
         return
 
     if message == "Статистика":
-        update.message.reply_text(help_text, reply_markup=cancel_markup)
-        # TODO: где стата?
+        update.message.reply_text(statistics(username), reply_markup=cancel_markup)
+
     elif message == "Правила":
         update.message.reply_text(help_text, reply_markup=cancel_markup)
 
