@@ -23,21 +23,21 @@ class BaseModel(Model):
 
 class Users(BaseModel):
     """Таблица пользователей.
-
     Args:
         BaseModel (_type_): for peewee db
-
     Пользователя описывает:
     username - username из API telegram
     chat_id - chat_id из API telegram
     stage - одно из состояний пользователя:
-        1) new - только зарегистрировался
+        1) menu - в меню (базовое состояние)
         2) wait_responce - Пользователь нажал на "Играть"
         3) game - Пользователь в игре
-        4) wait - Пользователь не в игре
+        4) new - впервые в боте, просим задать имя
+        5) wait_name - ждём имя
     active_game_id - id активной игры пользователя (если в игре)
     """
     username = CharField(unique=False)
+    name = CharField(unique=False, default="Аноним")
     chat_id = IntegerField(unique=True)
     stage = TextField(default="new")
     active_game_id = IntegerField(default=0)
@@ -45,10 +45,8 @@ class Users(BaseModel):
 
 def get_user(username: str) -> Users:
     """Найти по username пользователя
-
     Args:
         username (str): username из API telegram
-
     Returns:
         Users: найденный по username пользователь из Users
     """
@@ -60,7 +58,6 @@ def get_user(username: str) -> Users:
 
 def add_user(chat_id: int, username: str) -> None:
     """Добавить пользователя в БД
-
     Args:
         chat_id (int): chat_id из API telegram
         username (str): username из API telegram
@@ -72,23 +69,20 @@ def add_user(chat_id: int, username: str) -> None:
 def check_user(chat_id: int, username: str) -> None:
     """Проверить пользователя в БД
     Если его там нет - добавить
-
     Args:
         chat_id (int): chat_id из API telegram
         username (str): username из API telegram
     """
     try:
         user = get_user(username)
-    except:
+    except DoesNotExist:
         add_user(chat_id, username)
 
 
 def get_stage(username: str) -> Union[str, None]:
     """Получить stage пользователя
-
     Args:
         username (str): username из API telegram
-
     Returns:
         str: stage
     """
@@ -98,7 +92,6 @@ def get_stage(username: str) -> Union[str, None]:
 
 def edit_stage(username, new_stage: str) -> None:
     """Поменять stage пользователя
-
     Args:
         username (_type_): username из API telegram
         new_stage (str): новый stage
@@ -107,13 +100,21 @@ def edit_stage(username, new_stage: str) -> None:
     user.stage = new_stage
     user.save()
 
+def edit_name(username, new_name: str) -> None:
+    """Поменять name пользователя
+    Args:
+        username (_type_): username из API telegram
+        new_name (str): новый name
+    """
+    user = get_user(username)
+    user.name = new_name
+    user.save()
+
 
 class GameTelegramBot(BaseModel):
     """Таблица с играми.
-
     Args:
         BaseModel (_type_): _description_
-
     Игру описывает:
     game_id - уникальный id игры
     user1, user2 - игроки класса Users с теми же атрибутами
@@ -125,30 +126,26 @@ class GameTelegramBot(BaseModel):
     player2 = ForeignKeyField(Users, backref='game')
     end = BooleanField(default=False)
     first_step = BooleanField(default=False)
-    # win = ForeignKeyField(Users, backref='game')
+    win = ForeignKeyField(Users, backref='game')
 
 
 def create_game(user1: Users, user2: Users) -> int:
     """Запись игры
-
     Args:
         user1 (Users): первый игрок
         user2 (Users): второй игрок
-
     Returns:
         int: уникальный id игры
     """
-    game = GameTelegramBot.create(player1=user1, player2=user2)
+    game = GameTelegramBot.create(player1=user1, player2=user2, win=user1)
 
     return game.game_id
 
 
 def get_game(player: Users) -> GameTelegramBot:
     """Среди активных игр ищет игру по игроку
-
     Args:
         player (Users): один из двух игроков
-
     Returns:
         GameTelegramBot: игра
     """
