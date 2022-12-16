@@ -132,10 +132,10 @@ class Field(object):
                            "\nКозырь {7}"\
                            "\nКолода 🃏x{4} \n" \
                            "\nСтол: {5}\n\n" \
-                           "Ходит {6}".format(enemy_player.name, '🃏' * enemy_player.cards_quantity(),
-                                              query_player.name,
+                           "Ходит {6}".format(enemy_player.username, '🃏' * enemy_player.cards_quantity(),
+                                              query_player.username,
                                               cards_to_str(query_player.cards()), len(self.__deck),
-                                              table_to_print, turn.name, suit_to_emoji[self.trump.name])
+                                              table_to_print, turn.username, suit_to_emoji[self.trump.name])
         else:
             message_text = "Игроки:\n" \
                            "{0}  {1}\n" \
@@ -143,9 +143,9 @@ class Field(object):
                            "\nКозырь {7}" \
                            "\nКолода 🃏x{4} \n" \
                            "\nСтол: {5}\n\n" \
-                           "Ваш ход!".format(enemy_player.name, '🃏' * enemy_player.cards_quantity(), query_player.name,
+                           "Ваш ход!".format(enemy_player.username, '🃏' * enemy_player.cards_quantity(), query_player.username,
                                              cards_to_str(query_player.cards()), len(self.__deck),
-                                             table_to_print, turn.name, suit_to_emoji[self.trump.name])
+                                             table_to_print, turn.username, suit_to_emoji[self.trump.name])
         return message_text
 
 

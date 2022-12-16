@@ -18,6 +18,8 @@ from telegram.ext import (Updater,
                           Filters,
                           CallbackContext)
 
+
+
 menu_markup = ReplyKeyboardMarkup([[KeyboardButton(text='Игра')],
                                    [KeyboardButton(text='Статистика')],
                                    [KeyboardButton(text='Правила')],
@@ -25,24 +27,6 @@ menu_markup = ReplyKeyboardMarkup([[KeyboardButton(text='Игра')],
                                   one_time_keyboard=True,
                                   resize_keyboard=True,
                                   )
-
-
-def statistics(username: str) -> str:
-    """
-    Статистика :)
-    """
-    player = get_user(username)
-    games = GameTelegramBot.select().where((GameTelegramBot.end == True) &
-                                           ((GameTelegramBot.player1 == player) |
-                                            (GameTelegramBot.player2 == player)))
-    win, lose = 0, 0
-    for game in games:
-        if game.win == player:
-            win += 1
-        else:
-            lose += 1
-    return f"Побед: {win}\nПоражений: {lose}\n\nВсего игр: {lose + win}"
-
 
 def finish_the_game(username, context: CallbackContext, res: int) -> None:
     """
@@ -69,23 +53,20 @@ def finish_the_game(username, context: CallbackContext, res: int) -> None:
         player1, player2 = player2, player1
 
     if res == 1:
-        winner = p1
+        winner = p1.username
     else:
-        winner = p2
+        winner = p2.username
     print(winner)
     gamebot = get_game(player1)
     gamebot.end = True
-    gamebot.win = get_user(winner.username)
     gamebot.save()
 
-    edit_stage(p1.username, "menu")
-    edit_stage(p2.username, "menu")
+    edit_stage(p1.username, "wait")
+    edit_stage(p2.username, "wait")
 
-    context.bot.send_message(chat_id=player1.chat_id,
-                             text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner.name),
+    context.bot.send_message(chat_id=player1.chat_id, text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner),
                              reply_markup=menu_markup)
-    context.bot.send_message(chat_id=player2.chat_id,
-                             text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner.name),
+    context.bot.send_message(chat_id=player2.chat_id, text="Победил {0}, поздравляем!🎉🎉🎉 Игра окончена ".format(winner),
                              reply_markup=menu_markup)
 
 
@@ -132,8 +113,8 @@ def new_game(username1: str, username2: str, context: CallbackContext) -> None:
     game_id = create_game(user1, user2)
 
     # Создаем игроков для дурака
-    p1 = Player(user1.chat_id, user1.username, [], "", user1.name)
-    p2 = Player(user2.chat_id, user2.username, [], "", user2.name)
+    p1 = Player(user1.chat_id, user1.username, [])
+    p2 = Player(user2.chat_id, user2.username, [])
 
     game_alg = Game(p1, p2)
 
@@ -423,6 +404,9 @@ def game_block(update, context: CallbackContext, flag_inline_card: bool) -> None
     # Если активный и защищается -> защищается))
     elif p2.username == username and p2.active and p2.defensive:
         try:
+            if len(hand2) == 0: # чтобы не пытался отбить с 0 карт
+                finish_the_game(username, context, 2)
+                return
             if message != 'Взять':
                 # Если в прошлый раз была inline карта
                 if len(p2.last_inline_card) and not flag_inline_card:
