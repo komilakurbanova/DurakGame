@@ -39,7 +39,7 @@ class Users(BaseModel):
     username = CharField(unique=False)
     name = CharField(unique=False, default="Аноним")
     chat_id = IntegerField(unique=True)
-    stage = TextField(default="new")
+    stage = TextField(default="menu")
     active_game_id = IntegerField(default=0)
 
 
