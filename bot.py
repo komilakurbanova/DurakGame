@@ -144,7 +144,7 @@ def main_block(update: Update, context: CallbackContext) -> None:
 
 
 def main() -> None:
-    updater = Updater('5590111815:AAGP4kaHOvck-THoO_zKGvfBuAX62DvRtGk')
+    updater = Updater('') # токен
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start_block))
